@@ -28,6 +28,19 @@ if (process.env.NODE_ENV === 'production') {
   mockXHR()
 }
 
+Vue.directive('debounce', {
+  inserted(el, binding) {
+    let timer = null
+    el.addEventListener('click', () => {
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => {
+        binding.value()
+        timer = null
+      }, binding.arg || 300) // 默认 1 秒，可通过 v-debounce:500 自定义
+    })
+  }
+})
+
 // set ElementUI lang to EN
 Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明

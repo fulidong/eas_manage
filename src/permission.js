@@ -27,21 +27,14 @@ router.beforeEach(async(to, from, next) => {
       NProgress.done()
     } else {
       const hasGetUserInfo = store.getters.name
+      console.log(hasGetUserInfo, 'gfffffffffffffffgfg')
       if (hasGetUserInfo) {
         next()
       } else {
-        try {
-          // get user info
-          await store.dispatch('user/getInfo')
-
-          next()
-        } catch (error) {
-          // remove token and go to login page to re-login
-          await store.dispatch('user/resetToken')
-          Message.error(error || 'Has Error')
-          next(`/login?redirect=${to.path}`)
-          NProgress.done()
-        }
+        await store.dispatch('user/resetToken')
+        Message.error('Login expired, please log in again')
+        next(`/login?redirect=${to.path}`)
+        NProgress.done()
       }
     }
   } else {

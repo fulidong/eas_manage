@@ -12,7 +12,7 @@
         </span>
         <el-input
           ref="username"
-          v-model="loginForm.username"
+          v-model="loginForm.login_account"
           placeholder="Username"
           name="username"
           type="text"
@@ -28,7 +28,7 @@
         <el-input
           :key="passwordType"
           ref="password"
-          v-model="loginForm.password"
+          v-model="loginForm.pass_word"
           :type="passwordType"
           placeholder="Password"
           name="password"
@@ -41,7 +41,7 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+      <el-button v-debounce:300="handleLogin" :loading="loading" type="primary" style="width:100%;margin-bottom:30px;">Login</el-button>
 
       <div class="tips">
         <span style="margin-right:20px;">username: admin</span>
@@ -53,13 +53,12 @@
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
 
 export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
+      if (!value) {
         callback(new Error('Please enter the correct user name'))
       } else {
         callback()
@@ -74,12 +73,12 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        login_account: '',
+        pass_word: ''
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        login_account: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        pass_word: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       loading: false,
       passwordType: 'password',
@@ -106,6 +105,7 @@ export default {
       })
     },
     handleLogin() {
+      console.log('大幅度发生少时诵诗书')
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
