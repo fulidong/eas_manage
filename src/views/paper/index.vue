@@ -1,5 +1,6 @@
 <template>
   <div class="app-container">
+    <div>试卷管理</div>
     <el-table
       v-loading="listLoading"
       :data="list"
@@ -47,6 +48,7 @@
 import { getList } from '@/api/table'
 
 export default {
+  name: 'Index',
   filters: {
     statusFilter(status) {
       const statusMap = {

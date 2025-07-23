@@ -46,116 +46,66 @@ export const constantRoutes = [
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',
+    redirect: '/user',
+    meta: { roles: ['admin', 'editor'] },
     children: [{
-      path: 'dashboard',
-      name: 'Dashboard',
-      component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
+      path: 'user',
+      name: 'User',
+      component: () => import('@/views/user/index'),
+      meta: { title: '用户管理', icon: 'el-icon-user-solid' }
     }]
   },
 
   {
-    path: '/example',
+    path: '/paper',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'el-icon-s-help' },
-    children: [
-      {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
-      },
-      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    component: Layout,
+    redirect: '/paper/index',
+    name: 'Paper',
+    meta: { title: '试卷配置', icon: 'el-icon-school' },
     children: [
       {
         path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
-      }
-    ]
-  },
-
-  {
-    path: '/nested',
-    component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
-    },
-    children: [
-      {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
-        children: [
-          {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
-          }
-        ]
+        name: 'Index',
+        component: () => import('@/views/paper/index'),
+        meta: { title: '试卷管理', icon: 'el-icon-edit' }
       },
       {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        name: 'Menu2',
-        meta: { title: 'menu2' }
+        path: 'dimension',
+        name: 'Dimension',
+        component: () => import('@/views/paper/dimension'),
+        meta: { title: '试卷维度管理', icon: 'el-icon-pie-chart' }
+      },
+      {
+        path: 'topic',
+        name: 'Topic',
+        component: () => import('@/views/paper/topic'),
+        meta: { title: '题目管理', icon: 'el-icon-folder-add' }
       }
     ]
   },
 
   {
-    path: 'external-link',
+    path: '/examinee',
     component: Layout,
     children: [
       {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
+        path: 'examinee',
+        name: 'Examinee',
+        component: () => import('@/views/examinee/index'),
+        meta: { title: '考生管理', icon: 'el-icon-s-custom' }
+      }
+    ]
+  },
+
+  {
+    path: '/pubilish',
+    component: Layout,
+    children: [
+      {
+        path: 'pubilish',
+        name: 'Pubilish',
+        component: () => import('@/views/pubilish/index'),
+        meta: { title: '发放试卷', icon: 'el-icon-document' }
       }
     ]
   },
