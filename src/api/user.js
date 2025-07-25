@@ -7,6 +7,13 @@ export function login(data) {
     data
   })
 }
+export function getUserList(data) {
+  return request({
+    url: '/v1/user/page_list',
+    method: 'get',
+    params: { data }
+  })
+}
 
 export function getInfo(token) {
   return request({

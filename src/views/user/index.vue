@@ -6,9 +6,20 @@
 
 <script>
 import { mapGetters } from 'vuex'
-
+// import { getUserList } from '@/api/user.js'
 export default {
   name: 'UserBase',
+  data() {
+    return {
+      params: {
+        key_word: '',
+        user_status: -1,
+        user_type: -1,
+        page_index: 1,
+        page_size: 10
+      }
+    }
+  },
   computed: {
     ...mapGetters([
       'name'

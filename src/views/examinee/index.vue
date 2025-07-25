@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <div>考生管理</div>
+    <div class="text-[red] bg-blue-500 text-white p-4 rounded-lg">考生管理</div>
     <el-form ref="form" :model="form" label-width="120px">
       <el-form-item label="Activity name">
         <el-input v-model="form.name" />
