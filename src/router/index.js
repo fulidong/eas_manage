@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+// import { getUserType, getRouteAdd } from '@/utils/auth'
 
 Vue.use(Router)
 
@@ -30,27 +31,57 @@ import Layout from '@/layout'
  * a base page that does not have permission requirements
  * all roles can be accessed
  */
-export const constantRoutes = [
+// 静态路由
+export const constantRouterMap = [
   {
     path: '/login',
     component: () => import('@/views/login/index'),
     hidden: true
   },
-
+  {
+    path: '/',
+    redirect: '/examinee',
+    component: Layout,
+    children: [
+      {
+        path: 'examinee',
+        name: 'Examinee',
+        component: () => import('@/views/examinee/index'),
+        meta: { title: '考生管理', icon: 'el-icon-s-custom' }
+      }
+    ]
+  },
+  {
+    path: '/pubilish',
+    component: Layout,
+    children: [
+      {
+        path: 'pubilish',
+        name: 'Pubilish',
+        component: () => import('@/views/pubilish/index'),
+        meta: { title: '发放试卷', icon: 'el-icon-document' }
+      }
+    ]
+  },
   {
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true
   },
+  // 404 page must be placed at the end !!!
+  { path: '*', redirect: '/404', hidden: true }
+]
 
+// 动态路由（需要权限控制的路由）
+export const asyncRouterMap = [
   {
-    path: '/',
+    path: '/user',
     component: Layout,
-    redirect: '/user',
+    redirect: '/user/user',
     meta: { roles: ['admin', 'editor'] },
     children: [{
       path: 'user',
-      name: 'User',
+      name: 'UserBase',
       component: () => import('@/views/user/index'),
       meta: { title: '用户管理', icon: 'el-icon-user-solid' }
     }]
@@ -82,42 +113,16 @@ export const constantRoutes = [
         meta: { title: '题目管理', icon: 'el-icon-folder-add' }
       }
     ]
-  },
-
-  {
-    path: '/examinee',
-    component: Layout,
-    children: [
-      {
-        path: 'examinee',
-        name: 'Examinee',
-        component: () => import('@/views/examinee/index'),
-        meta: { title: '考生管理', icon: 'el-icon-s-custom' }
-      }
-    ]
-  },
-
-  {
-    path: '/pubilish',
-    component: Layout,
-    children: [
-      {
-        path: 'pubilish',
-        name: 'Pubilish',
-        component: () => import('@/views/pubilish/index'),
-        meta: { title: '发放试卷', icon: 'el-icon-document' }
-      }
-    ]
-  },
-
-  // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  }
 ]
+// if (getUserType() === 'admin' && !getRouteAdd()) {
+//   constantRouterMap.push(...asyncRouterMap)
+// }
 
 const createRouter = () => new Router({
   // mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
+  routes: constantRouterMap
 })
 
 const router = createRouter()

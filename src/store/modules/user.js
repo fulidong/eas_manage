@@ -1,5 +1,5 @@
 import { login, getInfo } from '@/api/user'
-import { getToken, setToken, getUserName, setUserName, removeUserName, setUserType, removeUserType, getUserType, removeToken } from '@/utils/auth'
+import { getToken, setToken, getUserName, setUserName, getRouteAdd, setRouteAdd, removeRouteAdd, removeUserName, setUserType, removeUserType, getUserType, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
@@ -7,7 +7,8 @@ const getDefaultState = () => {
     token: getToken(),
     name: getUserName(),
     type: getUserType(),
-    avatar: 'https://img.fx696.com/avatar/8886496002/8886496002_59811.jpg_wiki200'
+    avatar: 'https://img.fx696.com/avatar/8886496002/8886496002_59811.jpg_wiki200',
+    routesAdded: getRouteAdd() || false // 是否已添加动态路由
   }
 }
 
@@ -28,6 +29,10 @@ const mutations = {
   },
   SET_TYPE: (state, type) => {
     state.type = type
+  },
+  SET_ROUTES_ADDED: (state, status) => {
+    state.routesAdded = status
+    setRouteAdd(status)
   }
 }
 
@@ -40,10 +45,11 @@ const actions = {
         const { data } = response
         commit('SET_TOKEN', data.token)
         commit('SET_NAME', data.user_name)
-        commit('SET_TYPE', data.user_type)
+        commit('SET_TYPE', data.user_type === 0 ? 'admin' : 'user')
         setToken(data.token)
         setUserName(data.user_name)
-        setUserType(data.user_type)
+        commit('SET_ROUTES_ADDED', false)
+        setUserType(data.user_type === 0 ? 'admin' : 'user')
         resolve()
       }).catch(error => {
         reject(error)
@@ -78,6 +84,7 @@ const actions = {
     resetRouter()
     removeUserName()
     removeUserType()
+    removeRouteAdd()
     commit('RESET_STATE')
   },
 

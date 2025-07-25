@@ -6,32 +6,32 @@
         <h3 class="title">Login Form</h3>
       </div>
 
-      <el-form-item prop="username">
+      <el-form-item prop="login_account">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
         <el-input
-          ref="username"
+          ref="login_account"
           v-model="loginForm.login_account"
           placeholder="Username"
-          name="username"
+          name="login_account"
           type="text"
           tabindex="1"
           auto-complete="on"
         />
       </el-form-item>
 
-      <el-form-item prop="password">
+      <el-form-item prop="pass_word">
         <span class="svg-container">
           <svg-icon icon-class="password" />
         </span>
         <el-input
           :key="passwordType"
-          ref="password"
+          ref="pass_word"
           v-model="loginForm.pass_word"
           :type="passwordType"
           placeholder="Password"
-          name="password"
+          name="pass_word"
           tabindex="2"
           auto-complete="on"
           @keyup.enter.native="handleLogin"
@@ -58,6 +58,7 @@ export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
+      console.log(value, '这是反反复复')
       if (!value) {
         callback(new Error('Please enter the correct user name'))
       } else {
@@ -77,8 +78,8 @@ export default {
         pass_word: ''
       },
       loginRules: {
-        login_account: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        pass_word: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        login_account: [{ required: true, trigger: 'blur', message: '请输入账号', validator: validateUsername }],
+        pass_word: [{ required: true, trigger: 'blur', message: '密码长度不少于6', validator: validatePassword }]
       },
       loading: false,
       passwordType: 'password',
@@ -105,8 +106,8 @@ export default {
       })
     },
     handleLogin() {
-      console.log('大幅度发生少时诵诗书')
       this.$refs.loginForm.validate(valid => {
+        console.log(valid, 'gffffffffffffffffffffff')
         if (valid) {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm).then(() => {
