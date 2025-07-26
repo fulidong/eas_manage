@@ -29,15 +29,17 @@ router.beforeEach(async(to, from, next) => {
         const hasGetUserInfo = store.getters.name
         const hasGetUserType = store.getters.type
         if (hasGetUserInfo) {
-          if (!store.getters.routesAdded) {
-          // 动态添加路由
+          if (!store.getters.routesAdded&&hasGetUserType==='admin') {
             // console.log(hasGetUserType, asyncRouterMap, router, 'gfffffffffffffffff')
             const allRoutes = await store.dispatch('GenerateRoutes', { roles: hasGetUserType })
-            router.addRoutes([...allRoutes])
+            router.addRoutes([...allRoutes,{ path: '*', redirect: '/404', hidden: true }])
             store.commit('user/SET_ROUTES_ADDED', true) // 标记已添加
             // 确保addRoutes已完成
-            next({ ...to, replace: true })
+            setTimeout(()=>{
+                next({ ...to, replace: true })
+            },100)
           } else {
+            console.log(router,'路由参数')
             next()
           }
         } else {

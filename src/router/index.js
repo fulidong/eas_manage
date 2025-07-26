@@ -69,7 +69,7 @@ export const constantRouterMap = [
     hidden: true
   },
   // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+//   { path: '*', redirect: '/404', hidden: true }
 ]
 
 // 动态路由（需要权限控制的路由）
@@ -77,10 +77,10 @@ export const asyncRouterMap = [
   {
     path: '/user',
     component: Layout,
-    redirect: '/user/user',
+    redirect: '/user/index',
     meta: { roles: ['admin', 'editor'] },
     children: [{
-      path: 'user',
+      path: 'index',
       name: 'UserBase',
       component: () => import('@/views/user/index'),
       meta: { title: '用户管理', icon: 'el-icon-user-solid' }
@@ -113,7 +113,8 @@ export const asyncRouterMap = [
         meta: { title: '题目管理', icon: 'el-icon-folder-add' }
       }
     ]
-  }
+  },
+  { path: '*', redirect: '/404', hidden: true }
 ]
 // if (getUserType() === 'admin' && !getRouteAdd()) {
 //   constantRouterMap.push(...asyncRouterMap)

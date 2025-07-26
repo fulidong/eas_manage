@@ -1,79 +1,140 @@
 <template>
   <div class="app-container">
-    <div class="text-[red] bg-blue-500 text-white p-4 rounded-lg">考生管理</div>
-    <el-form ref="form" :model="form" label-width="120px">
-      <el-form-item label="Activity name">
-        <el-input v-model="form.name" />
-      </el-form-item>
-      <el-form-item label="Activity zone">
-        <el-select v-model="form.region" placeholder="please select your zone">
-          <el-option label="Zone one" value="shanghai" />
-          <el-option label="Zone two" value="beijing" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="Activity time">
-        <el-col :span="11">
-          <el-date-picker v-model="form.date1" type="date" placeholder="Pick a date" style="width: 100%;" />
-        </el-col>
-        <el-col :span="2" class="line">-</el-col>
-        <el-col :span="11">
-          <el-time-picker v-model="form.date2" type="fixed-time" placeholder="Pick a time" style="width: 100%;" />
-        </el-col>
-      </el-form-item>
-      <el-form-item label="Instant delivery">
-        <el-switch v-model="form.delivery" />
-      </el-form-item>
-      <el-form-item label="Activity type">
-        <el-checkbox-group v-model="form.type">
-          <el-checkbox label="Online activities" name="type" />
-          <el-checkbox label="Promotion activities" name="type" />
-          <el-checkbox label="Offline activities" name="type" />
-          <el-checkbox label="Simple brand exposure" name="type" />
-        </el-checkbox-group>
-      </el-form-item>
-      <el-form-item label="Resources">
-        <el-radio-group v-model="form.resource">
-          <el-radio label="Sponsor" />
-          <el-radio label="Venue" />
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="Activity form">
-        <el-input v-model="form.desc" type="textarea" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">Create</el-button>
-        <el-button @click="onCancel">Cancel</el-button>
-      </el-form-item>
-    </el-form>
+    <div class="flex items-center">
+        <div class="w-3/12 h-[40px] mr-10">
+            <el-input v-model="search_name"  placeholder="用户名搜索">
+                <i slot="prefix" class="el-input__icon cursor-pointer el-icon-search" @click.stop="searchEvent()"></i>
+            </el-input>
+        </div>
+        <div><el-button type="primary" @click.stop="dialogVisible=true">新增考生</el-button></div>
+    </div>
+    <div class="h-full mt-5">
+        <el-table
+            :data="userList"
+            border
+            max-height="500"
+            style="width: 100%">
+            <el-table-column
+                prop="user_name"
+                label="用户名称"
+                width="180">
+            </el-table-column>
+            <el-table-column
+                prop="phone"
+                label="电话"
+                width="180">
+            </el-table-column>
+            <el-table-column
+                prop="email"
+                label="邮箱">
+            </el-table-column>
+            <el-table-column  prop="status" label="是否激活">
+            </el-table-column>
+            <el-table-column
+                prop="updated_at"
+                label="最后更新时间">
+            </el-table-column>
+            <el-table-column
+                prop="updated_by"
+                label="最后更新人">
+            </el-table-column>
+            <el-table-column
+                label="操作">
+                <template slot-scope="scope">
+                     <el-button type="warning" class="h-[30px]" size="small" @click.stop="handelUpdata( scope.row)">修改</el-button>
+                    <el-button type="danger" class="h-[30px]" size="small" @click.stop="handelDelete( scope.row)">删除</el-button>
+                    </template>
+            </el-table-column>
+        </el-table>
+        <div class="flex mt-2 items-center justify-center">
+            <el-pagination
+                @current-change="handleCurrentChange"
+                :current-page.sync="params.page_index"
+                layout="prev, pager, next"
+                :total="total">
+            </el-pagination>
+        </div>
+    </div>
+     <user-dialog :dialogVisible="dialogVisible" :updataObj="upData" :type="type" @loadEvent="loadEvent" @userDialog="dialogVisible=false"></user-dialog>
   </div>
 </template>
 
 <script>
+import { getTestList,deleteTest } from '@/api/test.js'
+import userDialog from '@/components/examinee/userDialog.vue' 
 export default {
   name: 'Examinee',
+  components:{
+    'user-dialog':userDialog
+  },  
   data() {
     return {
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      }
+       params: {
+            key_word: '',
+            page_index: 1,
+            page_size: 10
+        },
+        search_name:'',
+        total:0,
+        userList:[], // 用户数据
+        dialogVisible:false, // 显示用户信息弹框
+        type:1,
+        upData:{} // 需要修改数据
     }
   },
+  created(){
+    this.getMyUserList()
+  },
   methods: {
-    onSubmit() {
-      this.$message('submit!')
+    async getMyUserList(){
+        try{
+            const res =await getTestList(this.params)
+            this.userList = res?.data?.examinee_data||[]
+            this.total = res?.data?.total
+        }catch(error){
+            console.log('获取用户数据错误',error)
+        }
     },
-    onCancel() {
-      this.$message({
-        message: 'cancel!',
-        type: 'warning'
-      })
+    searchEvent(){
+        this.params.key_word = this.search_name
+        this.getMyUserList()
+    },
+    loadEvent(){
+        this.dialogVisible = false
+        this.type=1
+        this.getMyUserList()
+    },
+    handelDelete(obj){
+        this.$confirm('此操作将永久删除此考生, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+            }).then(async() => {
+                const res = await deleteTest({examinee_id:obj.examinee_id})
+                if(res.code===200){
+                    this.getMyUserList()
+                    this.$message({
+                        type: 'success',
+                        message: '删除成功!'
+                    });
+                }else{
+                    this.$message('删除失败!');
+                }
+            }).catch(() => {
+            this.$message({
+                type: 'info',
+                message: '已取消删除'
+            });          
+        });
+    },
+    handelUpdata(obj){
+        this.upData = obj
+        this.type = 2
+        this.dialogVisible = true
+    },
+    handleCurrentChange(e){
+        this.params.page_index = e
+        this.getMyUserList()
     }
   }
 }

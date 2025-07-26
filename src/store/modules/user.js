@@ -1,5 +1,5 @@
 import { login, getInfo } from '@/api/user'
-import { getToken, setToken, getUserName, setUserName, getRouteAdd, setRouteAdd, removeRouteAdd, removeUserName, setUserType, removeUserType, getUserType, removeToken } from '@/utils/auth'
+import { getToken, setToken, getUserName, setUserName, removeUserName, setUserType, removeUserType, getUserType, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
@@ -8,7 +8,7 @@ const getDefaultState = () => {
     name: getUserName(),
     type: getUserType(),
     avatar: 'https://img.fx696.com/avatar/8886496002/8886496002_59811.jpg_wiki200',
-    routesAdded: getRouteAdd() || false // 是否已添加动态路由
+    routesAdded:  false // 是否已添加动态路由
   }
 }
 
@@ -31,8 +31,8 @@ const mutations = {
     state.type = type
   },
   SET_ROUTES_ADDED: (state, status) => {
+    console.log('开始设置他的峙了实打实的都是')
     state.routesAdded = status
-    setRouteAdd(status)
   }
 }
 
@@ -84,7 +84,6 @@ const actions = {
     resetRouter()
     removeUserName()
     removeUserType()
-    removeRouteAdd()
     commit('RESET_STATE')
   },
 
