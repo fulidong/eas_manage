@@ -38,6 +38,22 @@ export function upDateUser(data) {
   })
 }
 
+export function updatePassword(data) {
+    return request({
+    url: '/v1/user/update_password',
+    method: 'put',
+    data
+  })
+}
+
+export function resetPassword(data) {
+  return request({
+    url: '/v1/user/reset_password',
+    method: 'put',
+    data
+  })
+}
+
 export function deleteUser(data) {
   return request({
     url: '/v1/user/delete',

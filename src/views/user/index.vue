@@ -58,7 +58,13 @@
                         >
                     </el-switch>
                 </template>
-                </el-table-column>
+            </el-table-column>
+            <el-table-column
+                label="重置密码">
+                <template slot-scope="scope">
+                     <el-button type="primary" class="h-[30px]" size="small" @click.stop="handelResetPassword( scope.row)">重置密码</el-button>
+                </template>
+            </el-table-column>
             <el-table-column
                 prop="updated_at"
                 label="最后更新时间">
@@ -85,16 +91,19 @@
         </div>
     </div>
     <user-dialog :dialogVisible="dialogVisible" :updataObj="upData" :type="type" @loadEvent="loadEvent" @userDialog="dialogVisible=false"></user-dialog>
+    <reset-password :dialogVisible="isOpenReset" :obj="pasObj" @close="isOpenReset = false;pasObj={}"></reset-password>
   </div>
 </template>
 
 <script>
 import { getUserList,setUserStatus,deleteUser } from '@/api/user.js'
 import userDialog from '@/components/user/userDialog.vue' 
+import resetPassword from '@/components/user/resetPassword.vue' 
 export default {
   name: 'UserBase',
     components:{
-        'user-dialog':userDialog
+        'user-dialog':userDialog,
+        'reset-password':resetPassword
     },
     data() {
         return {
@@ -146,7 +155,9 @@ export default {
         }],
         dialogVisible:false, // 显示用户信息弹框
         type:1,
-        upData:{} // 需要修改数据
+        upData:{}, // 需要修改数据
+        pasObj:{}, // 重置密码数据
+        isOpenReset:false // 重置密码
         }
     },
     computed: {
@@ -226,6 +237,11 @@ export default {
         handleCurrentChange(e){
             this.params.page_index = e
             this.getMyUserList()
+        },
+        // 重置密码
+        handelResetPassword(obj){
+            this.pasObj = obj
+            this.isOpenReset = true
         }
     }
 }
