@@ -4,10 +4,9 @@ export function getTestList(data) {
   return request({
     url: '/v1/examinee/page_list',
     method: 'get',
-    params:data
+    params: data
   })
 }
-
 
 export function createTest(data) {
   return request({

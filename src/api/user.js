@@ -11,7 +11,7 @@ export function getUserList(data) {
   return request({
     url: '/v1/user/page_list',
     method: 'get',
-    params:data
+    params: data
   })
 }
 export function setUserStatus(data) {
@@ -39,7 +39,7 @@ export function upDateUser(data) {
 }
 
 export function updatePassword(data) {
-    return request({
+  return request({
     url: '/v1/user/update_password',
     method: 'put',
     data

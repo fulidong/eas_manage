@@ -8,7 +8,7 @@ const getDefaultState = () => {
     name: getUserName(),
     type: getUserType(),
     avatar: 'https://img.fx696.com/avatar/8886496002/8886496002_59811.jpg_wiki200',
-    routesAdded:  false // 是否已添加动态路由
+    routesAdded: false // 是否已添加动态路由
   }
 }
 
