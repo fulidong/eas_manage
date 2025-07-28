@@ -173,7 +173,6 @@ export default {
     async getMyUserList() {
       try {
         const res = await getUserList(this.params)
-        console.log(res, 'fffffffffffffffffff')
         this.userList = res?.data?.user_list || []
         this.total = res?.data?.total
       } catch (error) {

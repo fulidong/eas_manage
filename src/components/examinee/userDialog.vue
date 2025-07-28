@@ -9,7 +9,7 @@
   >
     <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
       <div class="">
-        <div v-for="(item,idx) in ruleForm.dynamicItems" :key="idx" class="border border-solid border-[#ccc] p-5 mt-5">
+        <div v-for="(item,idx) in ruleForm.dynamicItems" :key="idx" class="p-10 rounded-4 mt-5" :style="{border:'1px solid #EDEDED'}">
           <el-form-item label="考生名称" :prop="`dynamicItems.${idx}.user_name`">
             <el-input v-model="item.user_name" />
           </el-form-item>
