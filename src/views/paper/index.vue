@@ -1,8 +1,8 @@
 <template>
   <div class="dashboard-container">
-    <!-- <div class="flex items-center">
+    <div class="flex items-center">
       <div class="w-3/12 h-[40px] mr-10">
-        <el-input v-model="search_name" placeholder="用户名搜索">
+        <el-input v-model="search_name" placeholder="试卷名搜索">
           <i slot="prefix" class="el-input__icon cursor-pointer el-icon-search" @click.stop="searchEvent()" />
         </el-input>
       </div>
@@ -16,73 +16,83 @@
           />
         </el-select>
       </div>
-      <div class="mr-10">
-        <el-select v-model="curAdmin.value" placeholder="请选择" @change="slectedAdmin">
-          <el-option
-            v-for="item in adminMenu"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-      </div>
-      <div><el-button type="primary" @click.stop="dialogVisible=true">新增用户</el-button></div>
+      <div><el-button type="primary" @click.stop="type=1;dialogVisible=true">新增试卷</el-button></div>
     </div>
-    <div class="h-full mt-5">
-      <el-table
-        :data="salesList"
-        border
-        max-height="500"
-        style="width: 100%"
-      >
-        <el-table-column
-          prop="user_name"
-          label="用户名称"
-          width="180"
-        />
-        <el-table-column
-          prop="login_account"
-          label="账号"
-          width="180"
-        />
-        <el-table-column
-          prop="email"
-          label="邮箱"
-        />
-        <el-table-column label="是否激活">
-          <template slot-scope="scope">
-            <el-switch
-              :value="scope.row.user_status"
-              :active-value="1"
-              :inactive-value="0"
-              @change="changeStatus(scope.$index, scope.row)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="重置密码"
+    <div class="h-full mt-20 flex flex-col flex-1">
+      <div>
+        <el-table
+          :data="salesList"
+          border
+          max-height="500"
+          style="width: 100%"
         >
-          <template slot-scope="scope">
-            <el-button type="primary" class="h-[30px]" size="small" @click.stop="handelResetPassword( scope.row)">重置密码</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="updated_at"
-          label="最后更新时间"
-        />
-        <el-table-column
-          prop="updated_by"
-          label="最后更新人"
-        />
-        <el-table-column
-          label="操作"
-        >
-          <template slot-scope="scope">
-            <el-button type="warning" class="h-[30px]" size="small" @click.stop="handelUpdata( scope.row)">修改</el-button>
-            <el-button type="danger" class="h-[30px]" size="small" @click.stop="handelDelete( scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+          <el-table-column
+            prop="sales_paper_id"
+            label="试卷id"
+            width="180"
+          />
+          <el-table-column
+            prop="sales_paper_name"
+            label="试卷名称"
+            width="180"
+          />
+          <el-table-column
+            prop="recommend_time_lim"
+            label="推荐作答时长/分钟"
+          />
+          <el-table-column
+            prop="max_score"
+            label="最高分数上限"
+          />
+          <el-table-column
+            prop="min_score"
+            label="最低分数上限"
+          />
+          <el-table-column label="是否启用">
+            <template slot-scope="scope">
+              <el-switch
+                :value="scope.row.is_enabled"
+                :active-value="1"
+                :inactive-value="0"
+                @change="changeStatus(scope.$index, scope.row)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column label="是否使用">
+            <template slot-scope="scope">
+              <div classs="text-center leading-20 text-16">{{ scope.row.is_used===1?'已使用':'未使用' }}</div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="mark"
+            label="备注"
+          />
+          <el-table-column label="是否存在总分">
+            <template slot-scope="scope">
+              <div classs="text-center leading-20 text-16">{{ scope.row.is_sum_score===1?'是':'否' }}</div>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            prop="updated_at"
+            label="最后更新时间"
+          />
+          <el-table-column
+            prop="updated_by"
+            label="最后更新人"
+          />
+          <el-table-column
+            width="250"
+            label="操作"
+          >
+            <template slot-scope="scope">
+              <el-button type="warning" class="h-[30px]" size="small" @click.stop="handelUpdata( scope.row)">修改</el-button>
+              <el-button type="danger" class="h-[30px]" size="small" @click.stop="handelDelete( scope.row)">删除</el-button>
+              <el-button type="primary" class="h-[30px]" size="small" @click.stop="handelComment( scope.row)">评语</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
       <div class="flex mt-2 items-center justify-center">
         <el-pagination
           :current-page.sync="params.page_index"
@@ -92,18 +102,20 @@
         />
       </div>
     </div>
-    <user-dialog :dialog-visible="dialogVisible" :updata-obj="upData" :type="type" @loadEvent="loadEvent" @userDialog="dialogVisible=false" />
-    <reset-password :dialog-visible="isOpenReset" :obj="pasObj" @close="isOpenReset = false;pasObj={}" /> -->
+    <sales-dialog :dialog-visible="dialogVisible" :updata-obj="upData" :type="type" @loadEvent="loadEvent" @userDialog="type=1;dialogVisible=false" />
+    <comment-dialog :dialog-visible="isShowComment" :paper-id="curObj.sales_paper_id" @loadEvent="loadEvent" @closeDialog="isShowComment=false" />
   </div>
 </template>
 
 <script>
 import { getSalesList, salesDelete, salesStatus } from '@/api/sales.js'
+import salesDialog from '@/components/paper/salesDialog.vue'
+import commentDialog from '@/components/paper/commentDialog.vue'
 export default {
   name: 'UserBase',
   components: {
-    // 'user-dialog': userDialog,
-    // 'reset-password': resetPassword
+    'sales-dialog': salesDialog,
+    'comment-dialog': commentDialog
   },
   data() {
     return {
@@ -137,8 +149,8 @@ export default {
       dialogVisible: false, // 显示用户信息弹框
       type: 1,
       upData: {}, // 需要修改数据
-      pasObj: {}, // 重置密码数据
-      isOpenReset: false // 重置密码
+      curObj: {}, // 当前评语的数据
+      isShowComment: false // 评语列表
     }
   },
   computed: {
@@ -214,6 +226,10 @@ export default {
     handleCurrentChange(e) {
       this.params.page_index = e
       this.getMySalesList()
+    },
+    handelComment(obj) {
+      this.curObj = obj
+      this.isShowComment = true
     }
   }
 }

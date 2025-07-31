@@ -12,7 +12,7 @@ export function salesCreate(data) {
   return request({
     url: '/v1/sales_pager/create',
     method: 'post',
-    params: data
+    data
   })
 }
 
@@ -36,6 +36,21 @@ export function salesUpdate(data) {
   return request({
     url: '/v1/sales_pager/update',
     method: 'put',
+    data
+  })
+}
+export function getSalesCommentList(data) {
+  return request({
+    url: '/v1/sales_pager_comment/list',
+    method: 'get',
+    params: data
+  })
+}
+
+export function saveSalesComment(data) {
+  return request({
+    url: '/v1/sales_pager_comment/save',
+    method: 'post',
     data
   })
 }
