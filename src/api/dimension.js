@@ -10,7 +10,7 @@ export function getDimensionList(data) {
 
 export function dimensionCreate(data) {
   return request({
-    url: '/v1/sales_pager_dimension/create',
+    url: '/v1/sales_paper_dimension/create',
     method: 'post',
     data
   })
@@ -18,7 +18,7 @@ export function dimensionCreate(data) {
 
 export function dimensionDelete(data) {
   return request({
-    url: '/v1/sales_pager_dimension/delete',
+    url: '/v1/sales_paper_dimension/delete',
     method: 'put',
     data
   })
@@ -26,8 +26,16 @@ export function dimensionDelete(data) {
 
 export function dimensionUpdate(data) {
   return request({
-    url: '/v1/sales_pager_dimension/update',
+    url: '/v1/sales_paper_dimension/update',
     method: 'put',
     data
+  })
+}
+
+export function getDimensionUsableList(data) {
+  return request({
+    url: '/v1/sales_pager/usable_page_list',
+    method: 'get',
+    params: data
   })
 }
