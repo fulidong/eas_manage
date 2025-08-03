@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div style="min-height:calc(100vh - 50px)" class="app-container flex flex-col">
     <div class="flex items-center">
       <div class="w-1/12 h-[40px] mr-10">
         <el-select
@@ -23,7 +23,7 @@
       <div><el-button type="primary" @click.stop="dialogVisible=true">新增维度</el-button></div>
       <div class="ml-20"><el-button type="warning" @click.stop="type=2;dialogVisible=true">修改维度</el-button></div>
     </div>
-    <div class="h-full mt-20 flex flex-col flex-1">
+    <div class="h-full mt-20 flex flex-col  flex-1">
       <div v-if="dimensionList.length&&!isLoading">
         <el-table
           :data="dimensionList"
@@ -85,7 +85,7 @@
           </el-table-column>
         </el-table>
       </div>
-      <div v-if="isNotData " class="mt-300">
+      <div v-if="isNotData " class="flex-1 mt-100">
         <el-empty description="此试卷暂时没有维度信息" />
       </div>
       <dimension-dialog :type="type" :paper-id="curId" :dialog-visible="dialogVisible" :dimension-list="dimensionList" @closeDialog="dialogVisible=false;type=1" @loadEvent="getMyDimensionList()" />
