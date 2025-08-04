@@ -81,6 +81,7 @@
           >
             <template slot-scope="scope">
               <el-button type="danger" class="h-[30px]" size="small" @click.stop="handelDelete( scope.row)">删除</el-button>
+              <el-button type="primary" class="h-[30px]" size="small" @click.stop="handelComment( scope.row)">评语</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -89,16 +90,19 @@
         <el-empty description="此试卷暂时没有维度信息" />
       </div>
       <dimension-dialog :type="type" :paper-id="curId" :dialog-visible="dialogVisible" :dimension-list="dimensionList" @closeDialog="dialogVisible=false;type=1" @loadEvent="getMyDimensionList()" />
+      <dem-comment-dialog :dialog-visible="isShowDemComment" :paper-id="curDemstionId" @loadEvent="getMyDimensionList()" @closeDialog="isShowDemComment=false" />
     </div>
   </div></template>
 
 <script>
 import { getDimensionList, getDimensionUsableList, dimensionDelete } from '@/api/dimension.js'
 import dimensionDialog from '@/components/paper/dimensionDialog.vue'
+import demCommentDialog from '@/components/paper/demCommentDialog.vue'
 export default {
   name: 'Dimension',
   components: {
-    'dimension-dialog': dimensionDialog
+    'dimension-dialog': dimensionDialog,
+    'dem-comment-dialog': demCommentDialog
   },
   data() {
     return {
@@ -119,7 +123,9 @@ export default {
       isShowUpdate: false,
       dimensionList: [],
       isLoading: false,
-      isNotData: false
+      isNotData: false,
+      curDemstionId: '',
+      isShowDemComment: false
     }
   },
   created() {
@@ -183,6 +189,11 @@ export default {
     changePaperId(e) {
       this.curId = e
       this.getMyDimensionList()
+    },
+    handelComment(e) {
+      this.curDemstionId = e?.dimension_id
+      this.isShowDemComment = true
+      console.log(e, 'fdsfdsfdsf')
     }
   }
 }

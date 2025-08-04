@@ -102,12 +102,11 @@ export default {
         this.passwordType = 'password'
       }
       this.$nextTick(() => {
-        this.$refs.password.focus()
+        this.$refs.pass_word.focus()
       })
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
-        console.log(valid, 'gffffffffffffffffffffff')
         if (valid) {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm).then(() => {

@@ -39,3 +39,19 @@ export function getDimensionUsableList(data) {
     params: data
   })
 }
+
+export function getDemistionCommentList(data) {
+  return request({
+    url: '/v1/sales_pager_dimension_comment/list',
+    method: 'get',
+    params: data
+  })
+}
+
+export function saveDemistioComment(data) {
+  return request({
+    url: '/v1/sales_pager_dimension_comment/save',
+    method: 'post',
+    data
+  })
+}

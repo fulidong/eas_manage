@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <div class="flex items-center">
-      <div class="w-300 h-[40px] mr-10">
+      <div class="w-300 h-[40px] mr-30">
         <div class="flex items-center">
-            <div class="text-16 whitespace-nowrap">搜索可用试卷：</div>
-            <el-select
+          <div class="text-16 whitespace-nowrap">搜索可用试卷：</div>
+          <el-select
             v-model="value"
             filterable
             remote
@@ -13,26 +13,47 @@
             :remote-method="getSearchList"
             :loading="loading"
             @change="changePaperId"
-            >
+          >
             <el-option
-                v-for="item in paperList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+              v-for="item in paperList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
             />
-            </el-select>
+          </el-select>
+        </div>
+      </div>
+      <div class="w-300 h-[40px] mr-30">
+        <div class="flex items-center">
+          <div class="text-16 whitespace-nowrap">搜索试卷维度：</div>
+          <el-select
+            v-model="demsitionValue"
+            remote
+            reserve-keyword
+            placeholder="请选择试题维度"
+            :remote-method="getSearchDemsitionList"
+            :loading="demsitionLoading"
+            @change="changeDemistionrId"
+          >
+            <el-option
+              v-for="item in demsitionList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </div>
       </div>
       <div><el-button type="primary" @click.stop="dialogVisible=true">新增题目</el-button></div>
     </div>
-    <div class="h-full mt-20 flex flex-col  flex-1">
+    <div class="h-full mt-50 flex flex-col  flex-1">
       <div v-if="questionList.length&&!isLoading">
         <el-table
-           @cell-click="jumpDetail"
           :data="questionList"
           border
           max-height="500"
           style="width: 100%"
+          @cell-click="jumpDetail"
         >
           <el-table-column
             prop="title"
@@ -58,7 +79,7 @@
             label="关联试卷id"
           />
           <el-table-column
-            prop="sale_paper_dimension_id"
+            prop="sales_paper_dimension_id"
             label="关联维度id"
           />
           <el-table-column
@@ -74,7 +95,7 @@
             label="操作"
           >
             <template slot-scope="scope">
-                <el-button type="warning" class="h-[30px]" size="small" @click.stop="handelUpdate( scope.row)">修改</el-button>
+              <el-button type="warning" class="h-[30px]" size="small" @click.stop="handelUpdate( scope.row)">修改</el-button>
               <el-button type="danger" class="h-[30px] ml-10" size="small" @click.stop="handelDelete( scope.row)">删除</el-button>
             </template>
           </el-table-column>
@@ -84,18 +105,21 @@
         <el-empty description="此试卷暂时没有维度信息" />
       </div>
     </div>
-    <create-topic-dialog :type="type" :paperId="curId" :updataObj="upData" :dialog-visible="dialogVisible" @loadEvent="getMyQuestionList()"  @userDialog="closeDialog"></create-topic-dialog>
+    <create-topic-dialog :type="type" :cur-sale-id="demsitionId" :paper-id="curId" :updata-obj="upData" :dialog-visible="dialogVisible" @loadEvent="getMyQuestionList()" @userDialog="closeDialog" />
+    <detail-dialog :dialog-visible="isShowDetail" :detail-obj="detailData" @userDialog="isShowDetail=false" />
   </div>
 </template>
 
 <script>
-import { getDimensionUsableList } from '@/api/dimension.js'
-import { getQuesitionList, quesitionDelete,getQuesitionDetail } from '@/api/quesition.js'
+import { getDimensionUsableList, getDimensionList } from '@/api/dimension.js'
+import { getQuesitionList, quesitionDelete, getQuesitionDetail } from '@/api/quesition.js'
 import createTopicDialog from '@/components/paper/createTopicDialog.vue'
+import detailDialog from '@/components/paper/detailDialog.vue'
 export default {
   name: 'Topic',
-  components:{
-    'create-topic-dialog':createTopicDialog
+  components: {
+    'create-topic-dialog': createTopicDialog,
+    'detail-dialog': detailDialog
   },
   data() {
     return {
@@ -103,9 +127,10 @@ export default {
       listLoading: true,
       value: '',
       curId: '',
-      type:1,
+      type: 1,
       params: {
-        sales_paper_id: ''
+        sales_paper_id: '',
+        sales_paper_dimension_id: ''
       },
       usableObj: {
         key_word: '',
@@ -114,9 +139,15 @@ export default {
       },
       paperList: [],
       dialogVisible: false,
-      questionList:[],
-      upData:{},
-      isNotData:false
+      questionList: [],
+      upData: {},
+      detailData: {},
+      isNotData: false,
+      isShowDetail: false,
+      demsitionValue: '',
+      demsitionId: '',
+      demsitionList: [],
+      demsitionLoading: false
     }
   },
   created() {
@@ -127,6 +158,7 @@ export default {
       try {
         this.isLoading = true
         this.params.sales_paper_id = this.curId
+        this.params.sales_paper_dimension_id = this.demsitionId
         const res = await getQuesitionList(this.params)
         console.log(res, '数据对对对')
         this.questionList = res?.data?.question_data || []
@@ -146,10 +178,25 @@ export default {
         if (type === 1) {
           this.value = this.paperList[0]?.label
           this.curId = this.paperList[0]?.value
+          this.getSearchDemsitionList()
           this.getMyQuestionList()
         }
         this.loading = false
       } catch (error) { this.loading = false; console.log('试卷可用列表报错', error) }
+    },
+    async getSearchDemsitionList() {
+      try {
+        this.demsitionLoading = true
+        const res = await getDimensionList({ sales_paper_id: this.curId })
+        this.demsitionList = res?.data?.dimension_data?.map(x => {
+          return { label: x.dimension_name, value: x.dimension_id
+          }
+        })
+        console.log(res, this.demsitionList, 'gfgggg')
+        this.demsitionValue = this.demsitionList[0]?.label
+        this.demsitionId = this.demsitionList[0]?.value
+        this.demsitionLoading = false
+      } catch (error) { console.log('试卷维度列表报错', error) }
     },
     handelDelete(obj) {
       this.$confirm('此操作将永久删除此维度, 是否继续?', '提示', {
@@ -178,9 +225,9 @@ export default {
       })
     },
     async handelUpdate(obj) {
-      const res = await getQuesitionDetail({question_id:obj?.question_id})
-      console.log(res,'详情的数据')
-      if(res?.code==200){
+      const res = await getQuesitionDetail({ question_id: obj?.question_id })
+      console.log(res, '详情的数据')
+      if (res?.code === 200) {
         this.upData = res?.data?.question_data
         this.type = 2
         this.dialogVisible = true
@@ -190,13 +237,23 @@ export default {
       this.curId = e
       this.getMyQuestionList()
     },
-    closeDialog(){
-        this.type=1
-        this.$set(this.upData,{})
-        this.dialogVisible = false
+    changeDemistionrId(e) {
+      this.demsitionId = e
+      this.getMyQuestionList()
     },
-    jumpDetail(e){
-        console.log(e)
+    closeDialog() {
+      this.type = 1
+      this.$set(this.upData, {})
+      this.dialogVisible = false
+    },
+    async jumpDetail(e) {
+      console.log(e)
+      const res = await getQuesitionDetail({ question_id: e?.question_id })
+      console.log(res, '详情的数据')
+      if (res?.code === 200) {
+        this.detailData = res?.data?.question_data
+        this.isShowDetail = true
+      }
     }
   }
 }
