@@ -1,12 +1,14 @@
-import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { login, getInfo } from '@/api/user'
+import { getToken, setToken, getUserName, setUserName, removeUserName, setUserType, removeUserType, getUserType, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
-    name: '',
-    avatar: ''
+    name: getUserName(),
+    type: getUserType(),
+    avatar: 'https://img.fx696.com/avatar/8886496002/8886496002_59811.jpg_wiki200',
+    routesAdded: false // 是否已添加动态路由
   }
 }
 
@@ -24,18 +26,30 @@ const mutations = {
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_TYPE: (state, type) => {
+    state.type = type
+  },
+  SET_ROUTES_ADDED: (state, status) => {
+    console.log('开始设置他的峙了实打实的都是')
+    state.routesAdded = status
   }
 }
 
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    const { username, password } = userInfo
+    const { login_account, pass_word } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
+      login({ login_account: login_account.trim(), pass_word }).then(response => {
         const { data } = response
         commit('SET_TOKEN', data.token)
+        commit('SET_NAME', data.user_name)
+        commit('SET_TYPE', data.user_type === 0 ? 'admin' : 'user')
         setToken(data.token)
+        setUserName(data.user_name)
+        commit('SET_ROUTES_ADDED', false)
+        setUserType(data.user_type === 0 ? 'admin' : 'user')
         resolve()
       }).catch(error => {
         reject(error)
@@ -53,10 +67,10 @@ const actions = {
           return reject('Verification failed, please Login again.')
         }
 
-        const { name, avatar } = data
+        const { name } = data
 
         commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
+
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -66,16 +80,11 @@ const actions = {
 
   // user logout
   logout({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
-        removeToken() // must remove  token  first
-        resetRouter()
-        commit('RESET_STATE')
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
-    })
+    removeToken() // must remove  token  first
+    resetRouter()
+    removeUserName()
+    removeUserType()
+    commit('RESET_STATE')
   },
 
   // remove token

@@ -7,6 +7,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 
 import '@/styles/index.scss' // global css
+import './assets/css/tailwind.css'
 
 import App from './App'
 import store from './store'
@@ -27,6 +28,19 @@ if (process.env.NODE_ENV === 'production') {
   const { mockXHR } = require('../mock')
   mockXHR()
 }
+
+Vue.directive('debounce', {
+  inserted(el, binding) {
+    let timer = null
+    el.addEventListener('click', () => {
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => {
+        binding.value()
+        timer = null
+      }, binding.arg || 300) // 默认 1 秒，可通过 v-debounce:500 自定义
+    })
+  }
+})
 
 // set ElementUI lang to EN
 Vue.use(ElementUI, { locale })

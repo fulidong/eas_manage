@@ -6,32 +6,32 @@
         <h3 class="title">Login Form</h3>
       </div>
 
-      <el-form-item prop="username">
+      <el-form-item prop="login_account">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
         <el-input
-          ref="username"
-          v-model="loginForm.username"
+          ref="login_account"
+          v-model="loginForm.login_account"
           placeholder="Username"
-          name="username"
+          name="login_account"
           type="text"
           tabindex="1"
           auto-complete="on"
         />
       </el-form-item>
 
-      <el-form-item prop="password">
+      <el-form-item prop="pass_word">
         <span class="svg-container">
           <svg-icon icon-class="password" />
         </span>
         <el-input
           :key="passwordType"
-          ref="password"
-          v-model="loginForm.password"
+          ref="pass_word"
+          v-model="loginForm.pass_word"
           :type="passwordType"
           placeholder="Password"
-          name="password"
+          name="pass_word"
           tabindex="2"
           auto-complete="on"
           @keyup.enter.native="handleLogin"
@@ -41,7 +41,7 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+      <el-button v-debounce:300="handleLogin" :loading="loading" type="primary" style="width:100%;margin-bottom:30px;">Login</el-button>
 
       <div class="tips">
         <span style="margin-right:20px;">username: admin</span>
@@ -53,13 +53,13 @@
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
 
 export default {
   name: 'Login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
+      console.log(value, '这是反反复复')
+      if (!value) {
         callback(new Error('Please enter the correct user name'))
       } else {
         callback()
@@ -74,12 +74,12 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        login_account: '',
+        pass_word: ''
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        login_account: [{ required: true, trigger: 'blur', message: '请输入账号', validator: validateUsername }],
+        pass_word: [{ required: true, trigger: 'blur', message: '密码长度不少于6', validator: validatePassword }]
       },
       loading: false,
       passwordType: 'password',
@@ -102,7 +102,7 @@ export default {
         this.passwordType = 'password'
       }
       this.$nextTick(() => {
-        this.$refs.password.focus()
+        this.$refs.pass_word.focus()
       })
     },
     handleLogin() {
