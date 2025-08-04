@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div style="max-height:calc(100vh - 150px)" class="app-container flex flex-col">
     <div class="flex items-center">
       <div class="w-3/12 h-[40px] mr-10">
         <el-input v-model="search_name" placeholder="用户名搜索">
@@ -8,7 +8,7 @@
       </div>
       <div><el-button type="primary" @click.stop="dialogVisible=true">新增考生</el-button></div>
     </div>
-    <div class="h-full mt-5">
+    <div class="h-full mt-30" style="min-height:calc(100vh - 250px)">
       <el-table
         :data="userList"
         border

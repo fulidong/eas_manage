@@ -1,5 +1,5 @@
 <template>
-  <div style="min-height:calc(100vh - 50px)" class="app-container flex flex-col">
+  <div style="max-height:calc(100vh - 150px)" class="app-container flex flex-col">
     <div class="flex items-center">
       <div class="w-1/12 h-[40px] mr-10">
         <el-select
@@ -23,12 +23,12 @@
       <div><el-button type="primary" @click.stop="dialogVisible=true">新增维度</el-button></div>
       <div class="ml-20"><el-button type="warning" @click.stop="type=2;dialogVisible=true">修改维度</el-button></div>
     </div>
-    <div class="h-full mt-20 flex flex-col  flex-1">
+    <div class="h-full mt-30 flex flex-col  flex-1">
       <div v-if="dimensionList.length&&!isLoading">
         <el-table
           :data="dimensionList"
           border
-          max-height="500"
+          max-height="800"
           style="width: 100%"
         >
           <el-table-column

@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-container">
+  <div style="max-height:calc(100vh - 150px)" class="dashboard-container flex flex-col">
     <div class="flex items-center">
       <div class="w-3/12 h-[40px] mr-10">
         <el-input v-model="search_name" placeholder="试卷名搜索">
@@ -18,12 +18,12 @@
       </div>
       <div><el-button type="primary" @click.stop="type=1;dialogVisible=true">新增试卷</el-button></div>
     </div>
-    <div class="h-full mt-20 flex flex-col flex-1">
+    <div class="h-full mt-30 flex flex-col flex-1" style="min-height:calc(100vh - 250px)">
       <div>
         <el-table
           :data="salesList"
           border
-          max-height="500"
+          max-height="800"
           style="width: 100%"
         >
           <el-table-column
@@ -93,14 +93,14 @@
           </el-table-column>
         </el-table>
       </div>
-      <div class="flex mt-2 items-center justify-center">
-        <el-pagination
-          :current-page.sync="params.page_index"
-          layout="prev, pager, next"
-          :total="total"
-          @current-change="handleCurrentChange"
-        />
-      </div>
+    </div>
+    <div class="flex mt-20 items-center justify-center">
+      <el-pagination
+        :current-page.sync="params.page_index"
+        layout="prev, pager, next"
+        :total="total"
+        @current-change="handleCurrentChange"
+      />
     </div>
     <sales-dialog :dialog-visible="dialogVisible" :updata-obj="upData" :type="type" @loadEvent="loadEvent" @userDialog="type=1;dialogVisible=false" />
     <comment-dialog :dialog-visible="isShowComment" :paper-id="curObj.sales_paper_id" @loadEvent="loadEvent" @closeDialog="isShowComment=false" />

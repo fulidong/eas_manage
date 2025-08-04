@@ -39,3 +39,19 @@ export function getQuesitionDetail(data) {
     params: data
   })
 }
+
+export function getQuestionPlushList(data) {
+  return request({
+    url: '/v1/provide/page_list',
+    method: 'get',
+    params: data
+  })
+}
+
+export function questionPlush(data) {
+  return request({
+    url: '/v1/provide/create',
+    method: 'post',
+    data
+  })
+}

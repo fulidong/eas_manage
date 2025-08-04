@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div style="max-height:calc(100vh - 150px)" class="app-container flex flex-col">
     <div class="flex items-center">
       <div class="w-300 h-[40px] mr-30">
         <div class="flex items-center">
@@ -44,14 +44,15 @@
           </el-select>
         </div>
       </div>
-      <div><el-button type="primary" @click.stop="dialogVisible=true">新增题目</el-button></div>
+      <div class="mr-30"><el-button type="primary" @click.stop="dialogVisible=true">新增题目</el-button></div>
+      <div><el-button type="success" @click.stop="isShowPreview=true">预览</el-button></div>
     </div>
-    <div class="h-full mt-50 flex flex-col  flex-1">
+    <div class="h-full mt-30  flex flex-col  flex-1" style="min-height:calc(100vh - 250px)">
       <div v-if="questionList.length&&!isLoading">
         <el-table
           :data="questionList"
           border
-          max-height="500"
+          max-height="800"
           style="width: 100%"
           @cell-click="jumpDetail"
         >
@@ -107,6 +108,7 @@
     </div>
     <create-topic-dialog :type="type" :cur-sale-id="demsitionId" :paper-id="curId" :updata-obj="upData" :dialog-visible="dialogVisible" @loadEvent="getMyQuestionList()" @userDialog="closeDialog" />
     <detail-dialog :dialog-visible="isShowDetail" :detail-obj="detailData" @userDialog="isShowDetail=false" />
+    <peview-dialog :dialog-visible="isShowPreview" :sales-title="value" :sales-id="curId" @closeDialog="isShowPreview=false" />
   </div>
 </template>
 
@@ -115,11 +117,13 @@ import { getDimensionUsableList, getDimensionList } from '@/api/dimension.js'
 import { getQuesitionList, quesitionDelete, getQuesitionDetail } from '@/api/quesition.js'
 import createTopicDialog from '@/components/paper/createTopicDialog.vue'
 import detailDialog from '@/components/paper/detailDialog.vue'
+import peviewDialog from '@/components/paper/peviewDialog.vue'
 export default {
   name: 'Topic',
   components: {
     'create-topic-dialog': createTopicDialog,
-    'detail-dialog': detailDialog
+    'detail-dialog': detailDialog,
+    'peview-dialog': peviewDialog
   },
   data() {
     return {
@@ -147,7 +151,8 @@ export default {
       demsitionValue: '',
       demsitionId: '',
       demsitionList: [],
-      demsitionLoading: false
+      demsitionLoading: false,
+      isShowPreview: false // 预览
     }
   },
   created() {
