@@ -16,7 +16,6 @@ router.beforeEach(async(to, from, next) => {
 
   // set page title
   document.title = getPageTitle(to.meta.title)
-
   // determine whether the user has logged in
   const hasToken = getToken()
 
@@ -26,22 +25,31 @@ router.beforeEach(async(to, from, next) => {
       next({ path: '/' })
       NProgress.done()
     } else {
-      const hasGetUserInfo = store.getters.name
-      if (hasGetUserInfo) {
-        next()
-      } else {
-        try {
-          // get user info
-          await store.dispatch('user/getInfo')
-
-          next()
-        } catch (error) {
-          // remove token and go to login page to re-login
+      try {
+        const hasGetUserInfo = store.getters.name
+        const hasGetUserType = store.getters.type
+        if (hasGetUserInfo) {
+          if (!store.getters.routesAdded && hasGetUserType === 'admin') {
+            // console.log(hasGetUserType, asyncRouterMap, router, 'gfffffffffffffffff')
+            const allRoutes = await store.dispatch('GenerateRoutes', { roles: hasGetUserType })
+            router.addRoutes([...allRoutes, { path: '*', redirect: '/404', hidden: true }])
+            store.commit('user/SET_ROUTES_ADDED', true) // 标记已添加
+            // 确保addRoutes已完成
+            setTimeout(() => {
+              next({ ...to, replace: true })
+            }, 100)
+          } else {
+            console.log(router, '路由参数')
+            next()
+          }
+        } else {
           await store.dispatch('user/resetToken')
-          Message.error(error || 'Has Error')
+          Message.error('Login expired, please log in again')
           next(`/login?redirect=${to.path}`)
           NProgress.done()
         }
+      } catch (error) {
+        console.log(error, '拦截器出错')
       }
     }
   } else {

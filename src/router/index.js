@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+// import { getUserType, getRouteAdd } from '@/utils/auth'
 
 Vue.use(Router)
 
@@ -30,144 +31,99 @@ import Layout from '@/layout'
  * a base page that does not have permission requirements
  * all roles can be accessed
  */
-export const constantRoutes = [
+// 静态路由
+export const constantRouterMap = [
   {
     path: '/login',
     component: () => import('@/views/login/index'),
     hidden: true
   },
-
+  {
+    path: '/',
+    redirect: '/examinee',
+    component: Layout,
+    children: [
+      {
+        path: 'examinee',
+        name: 'Examinee',
+        component: () => import('@/views/examinee/index'),
+        meta: { title: '考生管理', icon: 'el-icon-s-custom' }
+      }
+    ]
+  },
+  {
+    path: '/pubilish',
+    component: Layout,
+    children: [
+      {
+        path: 'pubilish',
+        name: 'Pubilish',
+        component: () => import('@/views/pubilish/index'),
+        meta: { title: '发放试卷', icon: 'el-icon-document' }
+      }
+    ]
+  },
   {
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true
-  },
+  }
+  // 404 page must be placed at the end !!!
+//   { path: '*', redirect: '/404', hidden: true }
+]
 
+// 动态路由（需要权限控制的路由）
+export const asyncRouterMap = [
   {
-    path: '/',
+    path: '/user',
     component: Layout,
-    redirect: '/dashboard',
+    redirect: '/user/index',
+    meta: { roles: ['admin', 'editor'] },
     children: [{
-      path: 'dashboard',
-      name: 'Dashboard',
-      component: () => import('@/views/dashboard/index'),
-      meta: { title: 'Dashboard', icon: 'dashboard' }
+      path: 'index',
+      name: 'UserBase',
+      component: () => import('@/views/user/index'),
+      meta: { title: '用户管理', icon: 'el-icon-user-solid' }
     }]
   },
 
   {
-    path: '/example',
+    path: '/paper',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'el-icon-s-help' },
-    children: [
-      {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
-      },
-      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    component: Layout,
+    redirect: '/paper/index',
+    name: 'Paper',
+    meta: { title: '试卷配置', icon: 'el-icon-school' },
     children: [
       {
         path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
-      }
-    ]
-  },
-
-  {
-    path: '/nested',
-    component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
-    },
-    children: [
-      {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
-        children: [
-          {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
-          }
-        ]
+        name: 'Index',
+        component: () => import('@/views/paper/index'),
+        meta: { title: '试卷管理', icon: 'el-icon-edit' }
       },
       {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        name: 'Menu2',
-        meta: { title: 'menu2' }
-      }
-    ]
-  },
-
-  {
-    path: 'external-link',
-    component: Layout,
-    children: [
+        path: 'dimension',
+        name: 'Dimension',
+        component: () => import('@/views/paper/dimension'),
+        meta: { title: '试卷维度管理', icon: 'el-icon-pie-chart' }
+      },
       {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
+        path: 'topic',
+        name: 'Topic',
+        component: () => import('@/views/paper/topic'),
+        meta: { title: '题目管理', icon: 'el-icon-folder-add' }
       }
     ]
   },
-
-  // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]
+// if (getUserType() === 'admin' && !getRouteAdd()) {
+//   constantRouterMap.push(...asyncRouterMap)
+// }
 
 const createRouter = () => new Router({
   // mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
+  routes: constantRouterMap
 })
 
 const router = createRouter()
