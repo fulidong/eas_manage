@@ -1,42 +1,53 @@
 <template>
   <el-dialog
-    :title="type==1?'新增用户':'修改用户'"
+    :title="dialogTitle"
     :visible.sync="isOpen"
     width="50%"
-    max-height="500px"
     custom-class="pluisin-user"
     :before-close="handleClose"
   >
-    <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px" class="demo-ruleForm">
-      <div class="">
-        <div v-for="(item,idx) in ruleForm.dynamicItems" :key="idx" class="p-10 rounded-4 mt-5" :style="{border:'1px solid #EDEDED'}">
-          <el-form-item label="考生名称" :prop="`dynamicItems.${idx}.user_name`">
+    <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="100px">
+      <div>
+        <div
+          v-for="(item, idx) in ruleForm.dynamicItems"
+          :key="idx"
+          class="p-10 rounded-4 mt-5"
+          :style="{ border: '1px solid #EDEDED' }"
+        >
+          <el-form-item label="应聘者名称" :prop="`dynamicItems.${idx}.user_name`">
             <el-input v-model="item.user_name" />
           </el-form-item>
-          <el-form-item label="考生id" :prop="`dynamicItems.${idx}.examinee_id`">
-            <el-input v-model="item.examinee_id" />
-          </el-form-item>
+
           <el-form-item label="邮箱" :prop="`dynamicItems.${idx}.email`">
             <el-input v-model="item.email" />
           </el-form-item>
+
           <el-form-item label="手机" :prop="`dynamicItems.${idx}.phone`">
             <el-input v-model="item.phone" />
           </el-form-item>
-          <el-button v-if="idx>0" type="danger" size="small" @click.stop="deleteItems(idx)">删除</el-button>
+
+          <el-button v-if="idx > 0" type="danger" size="small" @click.stop="deleteItems(idx)">
+            删除
+          </el-button>
         </div>
-        <el-button v-if="type===1" type="primary" class="mt-5" size="small" @click.stop="addItem()">新增考生</el-button>
+
+        <el-button v-if="type === 1" type="primary" class="mt-5" size="small" @click.stop="addItem">
+          新增应聘者
+        </el-button>
       </div>
     </el-form>
+
     <div class="flex items-center mt-5 justify-center">
-      <el-button type="primary" @click.stop="handleUser('ruleForm')">提交考生信息</el-button>
+      <el-button type="primary" @click.stop="submitForm">提交应聘者信息</el-button>
     </div>
   </el-dialog>
 </template>
 
 <script>
 import { createTest, updateTest } from '@/api/test'
+
 export default {
-  name: 'UserDiolpg',
+  name: 'UserDialog',
   props: {
     type: {
       type: Number,
@@ -48,128 +59,150 @@ export default {
     },
     updataObj: {
       type: Object,
-      default: () => {}
+      default: () => ({})
     }
   },
   data() {
     return {
       isOpen: false,
       ruleForm: {
-        dynamicItems: [
-          {
-            user_name: '',
-            examinee_id: '',
-            email: '',
-            phone: ''
-          }
-        ]
+        dynamicItems: []
       },
       rules: {
         user_name: [
           { required: true, message: '请输入用户名称', trigger: 'blur' },
-          { min: 3, message: '长度最少3个字符', trigger: 'blur' }
-        ],
-        examinee_id: [
-          { required: true, message: '请输入账号', trigger: 'blur' }
+          { min: 2, message: '长度最少2个字符', trigger: 'blur' }
         ],
         email: [
-          { type: 'string', required: true, message: '请输入邮箱', trigger: 'blur' }
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
         ],
         phone: [
-          { type: 'string', required: true, message: '请输入手机号', trigger: 'blur' }
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
         ]
       }
     }
   },
+  computed: {
+    dialogTitle() {
+      return this.type === 1 ? '新增用户' : '修改用户'
+    }
+  },
   watch: {
-    dialogVisible(n) {
-      this.isOpen = n
+    dialogVisible: {
+      immediate: true,
+      handler(val) {
+        if (val) {
+          // ✅ 对话框打开时，强制根据当前 type 初始化表单
+          this.isOpen = true
+          this.$nextTick(() => {
+            this.resetForm()
+          })
+        } else {
+          this.isOpen = false
+        }
+      }
     },
-    type(n) {
-      console.log(n, 'fdfdfdd')
-      if (n === 2) {
-        const { examinee_id = '', user_name = '', email = '', phone = '' } = JSON.parse(JSON.stringify(this.updataObj))
-        const obj = { examinee_id, user_name, phone, email }
-        this.$set(this.ruleForm.dynamicItems, 0, { ...obj })
+    // ✅ 监听 type 和 updataObj，只要变化就尝试重置（打开状态下也生效）
+    type: {
+      immediate: true,
+      handler() {
+        if (this.dialogVisible) {
+          this.$nextTick(() => {
+            this.resetForm()
+          })
+        }
+      }
+    },
+    updataObj: {
+      deep: true,
+      handler() {
+        if (this.type === 2 && this.dialogVisible) {
+          this.$nextTick(() => {
+            this.resetForm()
+          })
+        }
       }
     }
   },
-  created() {
-    this.isOpen = this.dialogVisible
-  },
   methods: {
-    deleteItems(i) {
-      this.ruleForm.dynamicItems.splice(i, 1)
+    resetForm() {
+      // ✅ 清空所有数据
+      this.ruleForm.dynamicItems = []
+
+      if (this.type === 1) {
+        // 新增：添加一条空数据（examinee_id 为空，提交时用）
+        this.ruleForm.dynamicItems.push({
+          user_name: '',
+          examinee_id: '',
+          email: '',
+          phone: ''
+        })
+      } else if (this.type === 2 && this.updataObj) {
+        // 修改：填充数据，保留 examinee_id
+        const { examinee_id = '', user_name = '', email = '', phone = '' } = this.updataObj
+        this.ruleForm.dynamicItems.push({
+          user_name,
+          email,
+          phone,
+          examinee_id
+        })
+      }
     },
+
     addItem() {
-      const obj = {
+      this.ruleForm.dynamicItems.push({
         user_name: '',
         examinee_id: '',
         email: '',
         phone: ''
-      }
-      this.ruleForm.dynamicItems.push(obj)
+      })
     },
+
+    deleteItems(idx) {
+      if (this.ruleForm.dynamicItems.length > 1) {
+        this.ruleForm.dynamicItems.splice(idx, 1)
+      }
+    },
+
     handleClose() {
+      // ✅ 关闭时重置表单验证
+      this.$refs.ruleForm?.resetFields?.()
+      // ✅ 通过 emit 通知父组件关闭
       this.$emit('userDialog', false)
     },
-    handleUser(formName) {
-      this.$refs[formName].validate(async(valid) => {
-        if (valid) {
-          if (this.type === 1) {
-            const examinee_data = { examinee_data: this.ruleForm.dynamicItems }
-            const res = await createTest(examinee_data)
-            if (res?.code === 200) {
-              this.$set(this.ruleForm.dynamicItems, [
-                {
-                  user_name: '',
-                  examinee_id: '',
-                  email: '',
-                  phone: ''
-                }
-              ])
-              this.$message({
-                type: 'success',
-                message: '考生创建成功'
-              })
-              this.$emit('loadEvent')
-            } else {
-              this.$message('考生信息创建失败')
-            }
-          } else {
-            const examinee_data = { examinee_data: this.ruleForm.dynamicItems[0] }
-            const res = await updateTest(examinee_data)
-            if (res?.code === 200) {
-              this.ruleForm.dynamicItems = [
-                {
-                  user_name: '',
-                  examinee_id: '',
-                  email: '',
-                  phone: ''
-                }
-              ]
-              this.$message({
-                type: 'success',
-                message: '考生信息修改成功'
-              })
-              this.$emit('loadEvent')
-            } else {
-              this.$message('考生信息修改失败')
-            }
-          }
+
+    async submitForm() {
+      try {
+        await this.$refs.ruleForm.validate()
+
+        const payload = this.type === 1
+          ? { examinee_data: this.ruleForm.dynamicItems }
+          : { examinee_data: this.ruleForm.dynamicItems[0] }
+
+        const res = this.type === 1
+          ? await createTest(payload)
+          : await updateTest(payload)
+
+        if (res?.code === 200) {
+          this.$message.success(`${this.type === 1 ? '创建' : '修改'}成功`)
+          this.$emit('loadEvent')
+          this.handleClose()
         } else {
-          console.log('error submit!!')
-          return false
+          this.$message.error(`${this.type === 1 ? '创建' : '修改'}失败`)
         }
-      })
+      } catch (error) {
+        console.log('提交失败', error)
+      }
     }
   }
 }
 </script>
 
 <style lang="scss">
-    .pluisin-user{
-        max-height:600px;
-        overflow-y: auto;
-    }
+.pluisin-user {
+  max-height: 600px;
+  overflow-y: auto;
+}
 </style>

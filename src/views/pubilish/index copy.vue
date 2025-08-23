@@ -1,6 +1,5 @@
 <template>
   <div style="max-height:calc(100vh - 150px)" class="app-container flex flex-col">
-    <!-- 查询条件 -->
     <div class="flex items-center">
       <div class="w-w-300 h-[40px] mr-20 flex items-center">
         <div class="text-16 whitespace-nowrap">搜索可用试卷：</div>
@@ -33,30 +32,60 @@
         </el-select>
       </div>
       <div class="w-300 h-[40px] mr-20">
-        <el-input v-model="search_name" placeholder="用户名搜索" @keyup.enter.native="searchEvent">
+        <el-input v-model="search_name" placeholder="用户名搜索">
           <i slot="prefix" class="el-input__icon cursor-pointer el-icon-search" @click.stop="searchEvent()" />
         </el-input>
       </div>
 
-      <!-- ✅ 新增按钮：打开选择考生弹窗 -->
-      <el-button type="primary" size="small" @click.stop="openSelectDialog">
-        批量发放试卷
+      <!-- ✅ 发放试卷按钮移到这里 -->
+      <el-button type="primary" size="small" @click.stop="handleBatchPlush">
+        发放试卷
       </el-button>
     </div>
 
-    <!-- 表格 -->
     <div class="h-full mt-30 flex-1" style="min-height:calc(100vh - 250px)">
-      <el-table :data="provideList" border max-height="800" style="width: 100%">
-        <el-table-column prop="examinee_name" label="应聘者名称" width="180" />
-        <el-table-column prop="examinee_email" label="应聘者邮箱" width="180" />
-        <el-table-column prop="examinee_phone" label="应聘者电话" />
-        <el-table-column prop="sales_paper_name" label="试卷名称" />
-        <el-table-column prop="stage_number" label="状态">
+      <el-table
+        :data="provideList"
+        border
+        max-height="800"
+        style="width: 100%"
+      >
+        <el-table-column
+          prop="examinee_name"
+          label="应聘者名称"
+          width="180"
+        />
+        <el-table-column
+          prop="examinee_email"
+          label="应聘者邮箱"
+          width="180"
+        />
+        <el-table-column
+          prop="examinee_phone"
+          label="应聘者电话"
+        />
+        <el-table-column
+          prop="sales_paper_id"
+          label="试卷ID"
+        />
+        <el-table-column
+          prop="sales_paper_name"
+          label="试卷名称"
+        />
+        <el-table-column
+          prop="stage_number"
+          label="状态"
+        >
           <template slot-scope="scope">
             {{ showName(scope.row) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120">
+
+        <!-- ✅ 操作列：查看报告按钮（仅 stage_number === 3 时显示） -->
+        <el-table-column
+          label="操作"
+          width="120"
+        >
           <template slot-scope="scope">
             <el-button
               v-if="scope.row.stage_number === 3"
@@ -68,10 +97,15 @@
             </el-button>
           </template>
         </el-table-column>
+
+        <template slot="empty">
+          <div v-if="isNotData" class="flex-1 mt-200 mb-200">
+            <el-empty description="暂无数据" />
+          </div>
+        </template>
       </el-table>
     </div>
 
-    <!-- 分页 -->
     <div class="flex mt-20 items-center justify-center">
       <el-pagination
         :current-page.sync="params.page_index"
@@ -80,28 +114,15 @@
         @current-change="handleCurrentChange"
       />
     </div>
-
-    <!-- ✅ 引入选择考生弹窗 -->
-    <select-examinee-dialog
-      v-if="selectDialogVisible"
-      :dialog-visible="selectDialogVisible"
-      :paper-id="curId"
-      @close="selectDialogVisible = false"
-      @submit="handlePlushSubmit"
-    />
   </div>
 </template>
 
 <script>
 import { getQuestionPlushList, questionPlush } from '@/api/quesition.js'
 import { getDimensionUsableList } from '@/api/dimension.js'
-import SelectExamineeDialog from '@/components/selectExaminee/selectExaminee.vue' // ✅ 引入弹窗
 
 export default {
   name: 'Pubilish',
-  components: {
-    SelectExamineeDialog
-  },
   data() {
     return {
       params: {
@@ -116,7 +137,10 @@ export default {
         page_index: 1,
         page_size: 10
       },
-      curStatus: { value: -1, label: '全部' },
+      curStatus: {
+        value: -1,
+        label: '全部'
+      },
       stageList: [
         { label: '全部', value: -1 },
         { label: '未开始', value: 0 },
@@ -132,8 +156,7 @@ export default {
       search_name: '',
       provideList: [],
       total: 0,
-      isNotData: false,
-      selectDialogVisible: false // ✅ 控制弹窗显隐
+      isNotData: false
     }
   },
   created() {
@@ -141,7 +164,14 @@ export default {
   },
   methods: {
     showName(e) {
-      const obj = { 0: '未开始', 1: '未提交', 2: '已提交', 3: '已算分', 4: '已出报告', 5: '处理失败' }
+      const obj = {
+        0: '未开始',
+        1: '未提交',
+        2: '已提交',
+        3: '已算分',
+        4: '已出报告',
+        5: '处理失败'
+      }
       return obj[e?.stage_number] || '未知'
     },
     async getQuestionList() {
@@ -191,27 +221,19 @@ export default {
       this.params.key_word = this.search_name
       this.getQuestionList()
     },
-    // ✅ 打开选择考生弹窗
-    openSelectDialog() {
+    // ✅ 批量发放试卷（可扩展为多选发放）
+    async handleBatchPlush() {
       if (!this.curId) {
         this.$message.warning('请先选择一个试卷')
         return
       }
-      this.selectDialogVisible = true
-    },
-    // ✅ 提交选中的考生
-    async handlePlushSubmit(selectedExaminees) {
-      if (!selectedExaminees || selectedExaminees.length === 0) {
-        this.$message.warning('请至少选择一个考生')
+      // 当前逻辑：发放当前筛选条件下的所有考生
+      // 可根据需求改为“多选”模式
+      const examineeIds = this.provideList.map(item => item.examinee_id)
+      if (examineeIds.length === 0) {
+        this.$message.warning('当前无考生可发放')
         return
       }
-
-      // ✅ 去重：根据 examinee_id
-      const uniqueExaminees = Array.from(new Map(
-        selectedExaminees.map(item => [item.examinee_id, item])
-      ).values())
-
-      const examineeIds = uniqueExaminees.map(item => item.examinee_id)
 
       try {
         const obj = {
@@ -221,19 +243,22 @@ export default {
         const res = await questionPlush(obj)
         if (res?.code === 200) {
           this.$message.success('试卷发放成功~~~')
-          this.getQuestionList() // 刷新主表
-          this.selectDialogVisible = false
+          this.getQuestionList()
         } else {
-          this.$message.error('试卷发放失败')
+          this.$message.error('试卷发放失败~~~')
         }
       } catch (error) {
-        console.log('发放接口报错', error)
+        console.log('接口报错了', error)
         this.$message.error('发放失败，请重试')
       }
     },
+    // ✅ 查看报告
     handleViewReport(row) {
-      if (row.ReportPath) {
-        window.open(row.ReportPath, '_blank')
+      // 示例：跳转到报告页或弹窗预览
+      // 你可以根据 ReportPath 字段做处理
+      const reportUrl = row.ReportPath
+      if (reportUrl) {
+        window.open(reportUrl, '_blank')
       } else {
         this.$message.info('暂无报告可查看')
       }

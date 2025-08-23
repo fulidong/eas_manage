@@ -44,10 +44,12 @@
           <el-table-column
             prop="average_mark"
             label="平均分"
+            width="50"
           />
           <el-table-column
             prop="standard_mark"
             label="标准差"
+            width="50"
           />
           <el-table-column
             prop="description"
@@ -56,16 +58,18 @@
           <el-table-column
             prop="max_score"
             label="最高分数上限"
+            width="50"
           />
           <el-table-column
             prop="min_score"
             label="最低分数下限"
+            width="50"
           />
-          <el-table-column label="是否启用该维度">
+          <!-- <el-table-column label="是否选择该维度">
             <template slot-scope="scope">
-              <div classs="text-center leading-20 text-16">{{ scope.row.is_choose===true?'是':'否' }}</div>
+              <div classs="text-center leading-20 text-16">{{ scope.row.is_choose===1?'是':'否' }}</div>
             </template>
-          </el-table-column>
+          </el-table-column> -->
 
           <el-table-column
             prop="updated_at"
@@ -76,7 +80,6 @@
             label="最后更新人"
           />
           <el-table-column
-            width="100"
             label="操作"
           >
             <template slot-scope="scope">

@@ -44,7 +44,7 @@ router.beforeEach(async(to, from, next) => {
           }
         } else {
           await store.dispatch('user/resetToken')
-          Message.error('Login expired, please log in again')
+          Message.error('登录过期，请重新登录')
           next(`/login?redirect=${to.path}`)
           NProgress.done()
         }

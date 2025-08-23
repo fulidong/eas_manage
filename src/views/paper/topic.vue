@@ -75,14 +75,14 @@
             prop="order"
             label="题目序号"
           />
-          <el-table-column
+          <!-- <el-table-column
             prop="sale_paper_id"
             label="关联试卷id"
           />
           <el-table-column
             prop="sales_paper_dimension_id"
             label="关联维度id"
-          />
+          /> -->
           <el-table-column
             prop="updated_at"
             label="最后更新时间"
@@ -240,6 +240,7 @@ export default {
     },
     changePaperId(e) {
       this.curId = e
+      this.getSearchDemsitionList()
       this.getMyQuestionList()
     },
     changeDemistionrId(e) {

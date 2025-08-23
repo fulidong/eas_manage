@@ -17,10 +17,10 @@
       <div class="w-200 text-center text-16 font-semibold">描述</div>
       <div class="w-120 text-right text-16 font-semibold">最高分数上限</div>
       <div class="w-120 text-right text-16 font-semibold">最低分数下限</div>
-      <div class="w-150 text-right text-16 font-semibold">是否可选择该维度</div>
+      <!-- <div class="w-150 text-right text-16 font-semibold">是否可选择该维度</div> -->
       <div v-if="type===1" class="w-100 text-right text-16 font-semibold">操作</div>
     </div>
-    <el-form ref="ruleForm" :model="ruleForm" :rules="rules" class="demo-ruleForm">
+    <el-form ref="ruleForm" :model="ruleForm" :rules="formRules" class="demo-ruleForm">
       <div v-for="(item,idx) in ruleForm.dimension_data" :key="idx" class="rounded-4 mt-5 w-full flex items-center">
         <el-form-item label="" width="200px" :prop="`dimension_data.${idx}.dimension_name`">
           <el-input v-model="item.dimension_name" class="w-190 ml-10" />
@@ -40,7 +40,7 @@
         <el-form-item label="" width="100px" :prop="`dimension_data.${idx}.min_score`">
           <el-input v-model="item.min_score" class="w-90 ml-10" />
         </el-form-item>
-        <el-form-item label="" width="200px" :prop="`dimension_data.${idx}.is_choose`">
+        <!-- <el-form-item label="" width="200px" :prop="`dimension_data.${idx}.is_choose`">
           <div class="flex w-200 justify-center">
             <el-switch
               v-model="item.is_choose"
@@ -48,7 +48,7 @@
               inactive-color="#ff4949"
             />
           </div>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item v-if="idx>0&&type===1" label="" width="100px" prop="">
           <el-button type="danger" size="small" class="ml-20" @click.stop="deleteItems(idx)">删除此维度</el-button>
         </el-form-item>
@@ -98,31 +98,42 @@ export default {
             description: '',
             max_score: 0,
             min_score: 0,
-            is_choose: false
+            // is_choose: false
           }
         ]
-      },
-      rules: {
-        dimension_name: [
+      }
+    }
+  },
+  computed: {
+    formRules() {
+      const rules = {}
+      
+      // 确保 dimension_data 有值
+      if (!this.ruleForm.dimension_data) return rules
+
+      this.ruleForm.dimension_data.forEach((item, idx) => {
+        rules[`dimension_data.${idx}.dimension_name`] = [
           { required: true, message: '请输入维度名称', trigger: 'blur' },
           { min: 3, message: '长度最少3个字符', trigger: 'blur' }
-        ],
-        average_mark: [
+        ]
+        rules[`dimension_data.${idx}.average_mark`] = [
           { required: true, message: '请输入平均分', trigger: 'blur' }
-        ],
-        standard_mark: [
+        ]
+        rules[`dimension_data.${idx}.standard_mark`] = [
           { required: true, message: '请输入标准差', trigger: 'blur' }
-        ],
-        description: [
-          { required: true, message: '请输入描述内容', trigger: 'blur' }
-        ],
-        max_score: [
+        ]
+        rules[`dimension_data.${idx}.description`] = [
+          { message: '请输入描述内容', trigger: 'blur' }
+        ]
+        rules[`dimension_data.${idx}.max_score`] = [
           { required: true, message: '请输入最高分数上限', trigger: 'blur' }
-        ],
-        min_score: [
+        ]
+        rules[`dimension_data.${idx}.min_score`] = [
           { required: true, message: '请输入最低分数下限', trigger: 'blur' }
         ]
-      }
+      })
+      
+      return rules
     }
   },
   watch: {
@@ -141,7 +152,7 @@ export default {
           description: '',
           max_score: 0,
           min_score: 0,
-          is_choose: false
+          // is_choose: false
         }]
       }
     }
@@ -159,7 +170,7 @@ export default {
         description: '',
         max_score: 0,
         min_score: 0,
-        is_choose: false
+        // is_choose: false
       }
       this.ruleForm.dimension_data.push(obj)
     },
@@ -196,7 +207,7 @@ export default {
                     description: '',
                     max_score: 0,
                     min_score: 0,
-                    is_choose: false
+                    // is_choose: false
                   }
                 ]
                 this.handleClose()
@@ -219,7 +230,7 @@ export default {
               }
             }
           } catch (error) {
-            this.$message('服务器错误请稍后重试')
+            // this.$message('服务器错误请稍后重试')
             console.log(error, '接口报错~~~')
           }
         } else {

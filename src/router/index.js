@@ -47,7 +47,7 @@ export const constantRouterMap = [
         path: 'examinee',
         name: 'Examinee',
         component: () => import('@/views/examinee/index'),
-        meta: { title: '考生管理', icon: 'el-icon-s-custom' }
+        meta: { title: '应聘者管理', icon: 'el-icon-s-custom' }
       }
     ]
   },

@@ -2,11 +2,11 @@
   <div style="max-height:calc(100vh - 150px)" class="app-container flex flex-col">
     <div class="flex items-center">
       <div class="w-3/12 h-[40px] mr-10">
-        <el-input v-model="search_name" placeholder="用户名搜索">
+        <el-input v-model="search_name" placeholder="用户名搜索" @keyup.enter.native="searchEvent">
           <i slot="prefix" class="el-input__icon cursor-pointer el-icon-search" @click.stop="searchEvent()" />
         </el-input>
       </div>
-      <div><el-button type="primary" @click.stop="dialogVisible=true">新增考生</el-button></div>
+      <div><el-button type="primary" @click.stop="handelAdd()">新增应聘者</el-button></div>
     </div>
     <div class="h-full mt-30" style="min-height:calc(100vh - 250px)">
       <el-table
@@ -29,7 +29,7 @@
           prop="email"
           label="邮箱"
         />
-        <el-table-column prop="status" label="是否激活" />
+        <!-- <el-table-column prop="status" label="是否激活" /> -->
         <el-table-column
           prop="updated_at"
           label="最后更新时间"
@@ -56,7 +56,7 @@
         />
       </div>
     </div>
-    <user-dialog :dialog-visible="dialogVisible" :updata-obj="upData" :type="type" @loadEvent="loadEvent" @userDialog="dialogVisible=false" />
+    <user-dialog v-if="dialogVisible" :dialog-visible="dialogVisible" :updata-obj="upData" :type="type" @loadEvent="loadEvent" @userDialog="dialogVisible=false" />
   </div>
 </template>
 
@@ -106,7 +106,7 @@ export default {
       this.getMyUserList()
     },
     handelDelete(obj) {
-      this.$confirm('此操作将永久删除此考生, 是否继续?', '提示', {
+      this.$confirm('此操作将永久删除此应聘者, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -127,6 +127,11 @@ export default {
           message: '已取消删除'
         })
       })
+    },
+    handelAdd() {
+      this.upData = {}
+      this.type = 1
+      this.dialogVisible = true
     },
     handelUpdata(obj) {
       this.upData = obj

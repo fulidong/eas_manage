@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     :title="type==1?'新增试卷':'修改试卷'"
-    :visible.sync="dialogVisible"
+    :visible.sync="isOpen"
     width="40%"
     max-height="500px"
     custom-class="pluisin-user"
@@ -52,13 +52,12 @@
 
 <script>
 import { salesCreate, salesUpdate } from '@/api/sales'
-
 export default {
-  name: 'UserDialog',
+  name: 'UserDiolpg',
   props: {
     type: {
       type: Number,
-      default: 1 // 1: 新增, 2: 修改
+      default: 1
     },
     dialogVisible: {
       type: Boolean,
@@ -66,25 +65,24 @@ export default {
     },
     updataObj: {
       type: Object,
-      default: () => ({})
+      default: () => {}
     }
   },
   data() {
     return {
-      // 表单数据（初始为空）
+      isOpen: false,
       ruleForm: {
         sales_paper_id: '',
         sales_paper_name: '',
         recommend_time_lim: '',
         max_score: 0,
         min_score: 0,
-        is_enabled: true,    // 前端用布尔
+        is_enabled: 1,
         mark: '',
         expression: '',
         rounding: '',
-        is_sum_score: true
+        is_sum_score: 1
       },
-      // 表单验证规则
       rules: {
         sales_paper_id: [
           { message: '请输入试卷ID', trigger: 'blur' },
@@ -107,98 +105,84 @@ export default {
     }
   },
   watch: {
-    // 监听弹窗打开/关闭
-    dialogVisible: {
-      handler(n) {
-        if (n) {
-          // 弹窗打开
-          this.resetForm() // 先重置
-          if (this.type === 2 && this.updataObj) {
-            // 如果是修改，回显数据
-            this.fillForm(this.updataObj)
-          }
-        } else {
-          // 弹窗关闭 → 重置表单（防残留）
-          this.resetForm()
-        }
-      },
-      immediate: true // 立即执行一次（可选）
+    dialogVisible(n) {
+      this.isOpen = n
+    },
+    type(n) {
+      console.log(n, 'fdfdfdd')
+      if (n === 2) {
+        // const { sales_paper_id = '', sales_paper_name = '', recommend_time_lim = '', max_score = 0, min_score = 0, is_enabled = true, mark = '', expression = '', rounding = '', is_sum_score = true } = JSON.parse(JSON.stringify(this.updataObj))
+        const obj = { sales_paper_id, sales_paper_name, recommend_time_lim, max_score, min_score, is_enabled:is_enabled === 1, mark, expression, rounding, is_sum_score }
+        console.log(obj, '这个数据是啥')
+        // this.$set(this.ruleForm, { ...obj })
+        this.ruleForm = { ...obj }
+      }
     }
   },
+  created() {
+    this.isOpen = this.dialogVisible
+  },
   methods: {
-    // 重置表单
-    resetForm() {
-      this.ruleForm = {
-        sales_paper_id: '',
-        sales_paper_name: '',
-        recommend_time_lim: '',
-        max_score: 0,
-        min_score: 0,
-        is_enabled: true,
-        mark: '',
-        expression: '',
-        rounding: '',
-        is_sum_score: true
-      }
-    },
-
-    // 回显数据（修改时）
-    fillForm(data) {
-      this.ruleForm = {
-        sales_paper_id: data.sales_paper_id || '',
-        sales_paper_name: data.sales_paper_name || '',
-        recommend_time_lim: data.recommend_time_lim || '',
-        max_score: Number(data.max_score) || 0,
-        min_score: Number(data.min_score) || 0,
-        is_enabled: data.is_enabled === 1, // 1/0 → true/false
-        mark: data.mark || '',
-        expression: data.expression || '',
-        rounding: data.rounding || '',
-        is_sum_score: data.is_sum_score === 1
-      }
-    },
-
-    // 关闭弹窗（点击 x 或遮罩）
     handleClose() {
       this.$emit('userDialog', false)
     },
-
-    // 提交表单
     handleUser(formName) {
-      this.$refs[formName].validate(async (valid) => {
+      this.$refs[formName].validate(async(valid) => {
         if (valid) {
-          // 提交前：转换 is_enabled 为 1/0，其他字段处理
-          const submitData = {
-            ...this.ruleForm,
-            is_enabled: this.ruleForm.is_enabled ? 1 : 0, // true/false → 1/0
-            max_score: Number(this.ruleForm.max_score),
-            min_score: Number(this.ruleForm.min_score),
-            is_sum_score: this.ruleForm.is_sum_score ? 1 : 0
-          }
-
-          const salespaperdata = { sales_paper_data: submitData }
-          console.log(salespaperdata, "salespaperdata")
-          try {
-            let res = null
-            if (this.type === 1) {
-              res = await salesCreate(salespaperdata)
+          if (this.type === 1) {
+            const salespaperdata = { sales_paper_data: { ...this.ruleForm,is_enabled:this.ruleForm.is_enabled ? 1 : 0, max_score: Number(this.ruleForm?.max_score), min_score: Number(this.ruleForm?.min_score) }}
+            console.log(this.ruleForm, "111111")
+            const res = await salesCreate(salespaperdata)
+            if (res?.code === 200) {
+              this.$set(this.ruleForm, {
+                sales_paper_id: '',
+                sales_paper_name: '',
+                recommend_time_lim: '',
+                max_score: 0,
+                min_score: 0,
+                is_enabled: true,
+                mark: '',
+                expression: '',
+                rounding: '',
+                is_sum_score: true
+              })
+              this.$message({
+                type: 'success',
+                message: '试卷创建成功'
+              })
+              this.$emit('loadEvent')
             } else {
-              res = await salesUpdate(salespaperdata)
+              this.$message('试卷创建失败')
             }
-
-            if (res && res.code === 200) {
-              this.$message.success(this.type === 1 ? '试卷创建成功' : '试卷修改成功')
-              this.$emit('loadEvent') // 刷新列表
-              this.$emit('userDialog', false) // 关闭弹窗
+          } else {
+            const salespaperdata = { sales_paper_data: { ...this.ruleForm,is_enabled:this.ruleForm.is_enabled ? 1 : 0, max_score: Number(this.ruleForm?.max_score), min_score: Number(this.ruleForm?.min_score) }}
+            console.log(this.ruleForm, "111111")
+            const res = await salesUpdate(salespaperdata)
+            if (res?.code === 200) {
+              this.ruleForm = {
+                sales_paper_id: '',
+                sales_paper_name: '',
+                recommend_time_lim: '',
+                max_score: 0,
+                min_score: 0,
+                is_enabled: true,
+                mark: '',
+                expression: '',
+                rounding: '',
+                is_sum_score: true
+              }
+              this.$message({
+                type: 'success',
+                message: '试卷修改成功'
+              })
+              this.$emit('loadEvent')
             } else {
-              this.$message.error(this.type === 1 ? '试卷创建失败' : '试卷修改失败')
+              this.$message('试卷修改失败')
             }
-          } catch (error) {
-            this.$message.error('请求失败，请重试')
-            console.error(error)
           }
         } else {
-          console.log('表单验证失败')
+          console.log('error submit!!')
+          return false
         }
       })
     }

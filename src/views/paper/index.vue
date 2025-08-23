@@ -2,7 +2,7 @@
   <div style="max-height:calc(100vh - 150px)" class="dashboard-container flex flex-col">
     <div class="flex items-center">
       <div class="w-3/12 h-[40px] mr-10">
-        <el-input v-model="search_name" placeholder="试卷名搜索">
+        <el-input v-model="search_name" placeholder="试卷名搜索" @keyup.enter.native="searchEvent">
           <i slot="prefix" class="el-input__icon cursor-pointer el-icon-search" @click.stop="searchEvent()" />
         </el-input>
       </div>
@@ -22,7 +22,7 @@
       <div>
         <el-table
           :data="salesList"
-          border
+          
           max-height="800"
           style="width: 100%"
         >
@@ -46,7 +46,7 @@
           />
           <el-table-column
             prop="min_score"
-            label="最低分数上限"
+            label="最低分数下限"
           />
           <el-table-column label="是否启用">
             <template slot-scope="scope">
@@ -139,11 +139,11 @@ export default {
           value: -1
         },
         {
-          label: '已激活',
+          label: '启用',
           value: 1
         },
         {
-          label: '未激活',
+          label: '禁用',
           value: 0
         }],
       dialogVisible: false, // 显示用户信息弹框

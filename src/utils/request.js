@@ -53,9 +53,9 @@ service.interceptors.response.use(
         duration: 5 * 1000
       })
       if (res.code === 401) {
-        MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
-          confirmButtonText: 'Re-Login',
-          cancelButtonText: 'Cancel',
+        MessageBox.confirm('登录状态已过期', '确认登出', {
+          confirmButtonText: '重新登录',
+          cancelButtonText: '返回',
           type: 'warning'
         }).then(() => {
           store.dispatch('user/resetToken').then(() => {

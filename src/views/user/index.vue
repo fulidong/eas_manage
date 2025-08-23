@@ -2,7 +2,7 @@
   <div style="max-height:calc(100vh - 150px)" class="dashboard-container flex flex-col">
     <div class="flex items-center">
       <div class="w-3/12 h-[40px] mr-10">
-        <el-input v-model="search_name" placeholder="用户名搜索">
+        <el-input v-model="search_name" placeholder="用户名搜索" @keyup.enter.native="searchEvent">
           <i slot="prefix" class="el-input__icon cursor-pointer el-icon-search" @click.stop="searchEvent()" />
         </el-input>
       </div>
@@ -49,7 +49,7 @@
           prop="email"
           label="邮箱"
         />
-        <el-table-column label="是否激活">
+        <el-table-column label="是否启用">
           <template slot-scope="scope">
             <el-switch
               :value="scope.row.user_status"
@@ -119,7 +119,7 @@ export default {
       search_name: '',
       total: 0,
       userList: [], // 用户数据
-      //   是否激活,1.已激活;0.未激活；-1全部.
+      //   是否启用,1.已启用;0.未启用；-1全部.
       curStatus: {
         value: -1,
         label: '全部'
@@ -130,11 +130,11 @@ export default {
           value: -1
         },
         {
-          label: '已激活',
+          label: '已启用',
           value: 1
         },
         {
-          label: '未激活',
+          label: '未启用',
           value: 0
         }],
       //   是否管理员

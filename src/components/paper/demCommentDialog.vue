@@ -17,7 +17,7 @@
       <div class="w-200 text-center text-16 font-semibold">分数下限</div>
       <div class="w-100 text-right text-16 font-semibold">操作</div>
     </div>
-    <el-form ref="ruleForm" :model="ruleForm" :rules="rules" class="demo-ruleForm">
+    <el-form ref="ruleForm" :model="ruleForm" :rules="formRules" class="demo-ruleForm">
       <div v-for="(item,idx) in ruleForm.dimension_comment_data" :key="idx" class="rounded-4 mt-5 flex items-cente">
         <!-- <el-form-item label="" width="200px" :prop="`comment_data.${idx}.sales_paper_comment_id`">
           <el-input v-model="item.sales_paper_comment_id" class="w-200" />
@@ -31,7 +31,8 @@
         <el-form-item label="" width="200px" :prop="`dimension_comment_data.${idx}.low_score`">
           <el-input v-model="item.low_score" class="w-190 ml-10" />
         </el-form-item>
-        <el-form-item v-if="idx>0" label="" width="100px" prop="">
+        <!-- <el-form-item v-if="idx>0" label="" width="100px" prop=""> -->
+        <el-form-item label="" width="100px" prop="">
           <el-button type="danger" size="small" class="ml-20" @click.stop="deleteItems(idx)">删除</el-button>
         </el-form-item>
       </div>
@@ -71,19 +72,29 @@ export default {
             updated_by: ''
           }
         ]
-      },
-      rules: {
-        content: [
+      }
+    }
+  },
+  computed: {
+    formRules() {
+      const rules = {}
+      // 确保 dimension_data 有值
+      if (!this.ruleForm.dimension_comment_data) return rules
+
+      this.ruleForm.dimension_comment_data.forEach((item, idx) => {
+        rules[`dimension_comment_data.${idx}.content`] = [
           { required: true, message: '请输入评语', trigger: 'blur' },
           { min: 3, message: '长度最少3个字符', trigger: 'blur' }
-        ],
-        up_score: [
+        ]
+        rules[`dimension_comment_data.${idx}.up_score`] = [
           { required: true, message: '请输入分数上限', trigger: 'blur' }
-        ],
-        low_score: [
+        ]
+        rules[`dimension_comment_data.${idx}.low_score`] = [
           { required: true, message: '请输入分数下限', trigger: 'blur' }
         ]
-      }
+      })
+      
+      return rules
     }
   },
   watch: {
@@ -118,6 +129,8 @@ export default {
         console.log(res, '获取到的数据')
         if (res?.data?.dimension_comment_data?.length > 0) {
           this.ruleForm.dimension_comment_data = res?.data?.dimension_comment_data || []
+        } else {
+          this.ruleForm.dimension_comment_data = []
         }
       } catch (error) { console.log(error, '评论报错') }
     },
@@ -151,7 +164,7 @@ export default {
           this.$message('评语保存失败')
         }
       } catch (error) {
-        this.$message('服务器错误请稍后重试')
+        // this.$message('服务器错误请稍后重试')
         console.log(error, '接口报错~~~')
       }
     }

@@ -9,37 +9,40 @@
   >
     <div class="pb-50">
       <h3 class="text-18 text-center">{{ salesTitle }}</h3>
+
       <div class="mt-20">
-        <h4 class="text-14">一：单选题</h4>
-        <div class="">
-          <div v-for="(item,index) in radioList" :key="index" class="mt-40 px-30">
-            <div class="text-14 font-semibold">{{ `${item.order}、${item.title} ( )` }}</div>
-            <div class="mt-20 flex items-center">
-              <div v-for="(it,idx) in item.question_options_data" :key="idx" class="mr-30 text-14">{{ `${it.order}、${it.description}` }}</div>
+        <!-- 按顺序遍历所有题目 -->
+        <div
+          v-for="(item, index) in questionList"
+          :key="item.id || index"
+          class="mt-40 px-30"
+        >
+          <!-- 题干 -->
+          <div class="text-14 font-semibold">
+            {{ `${item.order}、${item.title}` }}
+            <span class="text-12 text-gray-500 ml-10">
+              ({{ getQuestionTypeName(item.question_type_id) }})
+            </span>
+            <span class="text-12 text-gray-400 ml-10">( )</span>
+          </div>
+
+          <!-- 选项 -->
+          <div v-if="item.question_options_data && item.question_options_data.length > 0" class="mt-20">
+            <div class="flex flex-wrap items-center">
+              <div
+                v-for="(option, idx) in item.question_options_data"
+                :key="option.id || idx"
+                class="mr-30 mb-10 text-14"
+              >
+                {{ `${option.serial_number}、${option.description}` }}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="mt-40">
-        <h4 class="text-14">二：多选题</h4>
-        <div class="">
-          <div v-for="(item,index) in choicesList" :key="index" class="mt-40 px-30">
-            <div class="text-14 font-semibold">{{ `${item.order}、${item.title} ( )` }}</div>
-            <div class="mt-20 flex items-center">
-              <div v-for="(it,idx) in item.question_options_data" :key="idx" class="mr-30 text-14">{{ `${it.order}、${it.description}` }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="mt-40">
-        <h4 class="text-14">三：判断题</h4>
-        <div class="">
-          <div v-for="(item,index) in judgmentList" :key="index" class="mt-40 px-30">
-            <div class="text-14 font-semibold">{{ `${item.order}、${item.title} ( )` }}</div>
-            <div class="mt-20 flex items-center">
-              <div v-for="(it,idx) in item.question_options_data" :key="idx" class="mr-30 text-14">{{ `${it.order}、${it.description}` }}</div>
-            </div>
-          </div>
+
+        <!-- 如果没有题目 -->
+        <div v-if="questionList.length === 0" class="text-center text-14 text-gray-400 mt-40">
+          暂无题目
         </div>
       </div>
     </div>
@@ -48,6 +51,7 @@
 
 <script>
 import { getQuesitionPreview } from '@/api/quesition'
+
 export default {
   name: 'PerviewDialog',
   props: {
@@ -67,10 +71,7 @@ export default {
   data() {
     return {
       isOpen: false,
-      detail: {},
-      radioList: [],
-      choicesList: [],
-      judgmentList: []
+      questionList: [] // 保持原始顺序的题目列表
     }
   },
   watch: {
@@ -88,27 +89,40 @@ export default {
     handleClose() {
       this.$emit('closeDialog', false)
     },
+
     async getQuestionData() {
       try {
         const res = await getQuesitionPreview({
           sales_paper_id: this.salesId
         })
-        this.detail = res?.data?.question_data || []
-        this.radioList = this.detail?.filter(x => x.question_type_id === 0)
-        this.choicesList = this.detail?.filter(x => x.question_type_id === 1)
-        this.judgmentList = this.detail?.filter(x => x.question_type_id === 2)
-        console.log(this.radioList, this.choicesList, 'timu')
+
+        const data = res?.data?.question_data || []
+
+        // ✅ 直接使用接口返回的顺序，不做分类
+        this.questionList = data
       } catch (error) {
-        console.log(error, '试卷预览报错')
+        console.error('试卷预览获取题目失败:', error)
+        this.$message.error('获取题目失败，请稍后重试')
+        this.questionList = []
       }
+    },
+
+    // 根据 question_type_id 返回题型名称
+    getQuestionTypeName(typeId) {
+      const types = {
+        0: '单选题',
+        1: '多选题',
+        2: '判断题'
+      }
+      return types[typeId] || '未知题型'
     }
   }
 }
 </script>
 
 <style lang="scss">
-    .pluisin-user{
-        max-height:800px;
-        overflow-y: auto;
-    }
+.pluisin-user {
+  max-height: 800px;
+  overflow-y: auto;
+}
 </style>

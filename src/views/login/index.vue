@@ -3,7 +3,7 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
-        <h3 class="title">Login Form</h3>
+        <h3 class="title">团智人才测评系统</h3>
       </div>
 
       <el-form-item prop="login_account">
@@ -13,7 +13,7 @@
         <el-input
           ref="login_account"
           v-model="loginForm.login_account"
-          placeholder="Username"
+          placeholder="账户"
           name="login_account"
           type="text"
           tabindex="1"
@@ -30,7 +30,7 @@
           ref="pass_word"
           v-model="loginForm.pass_word"
           :type="passwordType"
-          placeholder="Password"
+          placeholder="密码"
           name="pass_word"
           tabindex="2"
           auto-complete="on"
@@ -41,11 +41,11 @@
         </span>
       </el-form-item>
 
-      <el-button v-debounce:300="handleLogin" :loading="loading" type="primary" style="width:100%;margin-bottom:30px;">Login</el-button>
+      <el-button v-debounce:300="handleLogin" :loading="loading" type="primary" style="width:100%;margin-bottom:30px;">登录</el-button>
 
       <div class="tips">
-        <span style="margin-right:20px;">username: admin</span>
-        <span> password: any</span>
+        <span style="margin-right:20px;"></span>
+        <span></span>
       </div>
 
     </el-form>
