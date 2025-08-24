@@ -82,6 +82,7 @@ export default {
     }
   },
   watch: {
+    // 监听 dialogVisible 打开时初始化表单
     dialogVisible(n) {
       this.isOpen = n
     },

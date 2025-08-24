@@ -20,7 +20,7 @@
       <el-form-item label="最高分数上限" prop="max_score">
         <el-input v-model="ruleForm.max_score" type="number" class="w-300" />
       </el-form-item>
-      <el-form-item label="最低分数上限" prop="min_score">
+      <el-form-item label="最低分数下限" prop="min_score">
         <el-input v-model="ruleForm.min_score" type="number" class="w-300" />
       </el-form-item>
       <el-form-item label="是否启用试卷" prop="is_enabled">
@@ -101,7 +101,7 @@ export default {
           { required: true, message: '请输入最高分数上限', trigger: 'blur' }
         ],
         min_score: [
-          { required: true, message: '请输入最低分数上限', trigger: 'blur' }
+          { required: true, message: '请输入最低分数下限', trigger: 'blur' }
         ]
       }
     }
